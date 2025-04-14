@@ -21,7 +21,7 @@ class PenTool():
         dx = self.last_pos[0] - self.current_pos[0]
         dy = self.last_pos[1] - self.current_pos[1]
         distance = max(1, int((dx**2 + dy**2) ** 0.5))
-        steps = max(1, distance // (self.size // 2))
+        steps = max(1, distance // (self.size // 3))
         for i in range(steps + 1):
             t = i / steps
             x = int(self.current_pos[0] + dx * t)

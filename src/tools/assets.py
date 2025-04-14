@@ -132,7 +132,8 @@ def load_assets(page):
                                 config.BLACK, 
                                 border_width=3,
                                 radius=0, 
-                                icon=pen_icon)
+                                icon=pen_icon,
+                                mode=config.PEN_MODE)
         bucket_button = Button(config.CANVA_WIDTH + 40, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
                                 35, 35 , 
@@ -140,7 +141,8 @@ def load_assets(page):
                                 config.BLACK, 
                                 border_width=3,
                                 radius=0, 
-                                icon=bucket_icon)
+                                icon=bucket_icon,
+                                mode=config.FILL_MODE)
         eraser_button = Button(config.CANVA_WIDTH + 80, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
                                 35, 35 , 
@@ -148,7 +150,8 @@ def load_assets(page):
                                 config.BLACK, 
                                 border_width=3,
                                 radius=0, 
-                                icon=eraser_icon)
+                                icon=eraser_icon,
+                                mode=config.ERASE_MODE)
         chatTextArea = TextInput(CENTER_POINT_X + config.CANVA_WIDTH + 10,
                                 CENTER_POINT_Y + config.CANVA_HEIGHT - 45,
                                 chatSurface.get_width() - 10,

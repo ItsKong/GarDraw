@@ -8,19 +8,7 @@ def add_pages():
     other_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pages'))
     sys.path.append(other_folder_path)
 
-# def get_resulution():
-#     monitors = object
-#     for m in get_monitors():
-#         # print(m)
-#         if m.is_primary == True:
-#             monitors = m
-#     # print(monitors)
-#     width = monitors.width * 50 // 100
-#     height = monitors.height * 50 // 100
-#     return width, height
-
-# def change_resulotion(width, height):
-#     return width, height
+FPS = 144
 
 # WIDTH, HEIGHT = get_resulution()
 WIDTH, HEIGHT = 1400, 800

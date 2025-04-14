@@ -8,6 +8,10 @@ class TextInput:
         self.cursor_timer = 0
         self.cursor_position = len(self.text)
         self.cursor_interval = 500  # milliseconds
+        self.backspace_held = False
+        self.backspace_timer = 0
+        self.backspace_delay = 400   # initial delay before repeat (ms)
+        self.backspace_repeat = 50   # speed of repeat (ms)
 
         self.font = pygame.font.Font(kwargs.get("font", None), kwargs.get("fontSize", 30))
         self.color = kwargs.get("bg_color", (255, 255, 255))
@@ -23,19 +27,30 @@ class TextInput:
             if self.cursor_timer >= self.cursor_interval:
                 self.cursor_visible = not self.cursor_visible
                 self.cursor_timer = 0
+        # Handle backspace hold
+        if self.backspace_held:
+            self.backspace_timer += dt
+            if self.backspace_timer >= self.backspace_delay:
+                # Repeat delete every backspace_repeat interval
+                self.backspace_timer -= self.backspace_repeat
+                self.text = self.text[:-1]
 
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.active = self.rect.collidepoint(event.pos)
         if event.type == pygame.KEYDOWN and self.active:
-            if event.key == pygame.K_RETURN:
+            if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
                 self.active = False
             elif event.key == pygame.K_BACKSPACE:
                 self.text = self.text[:-1]
+                self.backspace_held = True
+                self.backspace_timer = 0  # reset repeat timer
             else:
                 self.text += event.unicode
-            print(self.text)
+        else:
+            self.backspace_held = False
+
 
     def draw(self, surface):
         # Draw box
