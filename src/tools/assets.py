@@ -5,7 +5,7 @@ from Button import Button
 from TextInput import TextInput
 from Dropdown import Dropdown
 
-def load_assets(page, screen=any):
+def load_assets(page):
     if page == 'menu':
         # load background 
         try:
@@ -38,14 +38,14 @@ def load_assets(page, screen=any):
                                     config.MENU_WIDTH - 20, 
                                     50, 
                                     "PLAY", config.GREEN,
-                                    border_radius=8,
+                                    radius=8,
                                     hoverColor=config.SEL_GREEN)
         create_room_button = Button(config.WIDTH*0.3649, 
                                   config.HEIGHT*0.5, 
                                   config.MENU_WIDTH - 20, 
                                   40, 
                                   "CREATE PRIVATE ROOM", config.ORANGE,
-                                  border_radius=8,
+                                  radius=8,
                                   hoverColor=config.SEL_ORANGE)
         # quit_button = Button((config.WIDTH - button_width) // 2, 300, 
         #                      button_width, button_height, "quit", config.PINK)
@@ -112,15 +112,18 @@ def load_assets(page, screen=any):
         except pygame.error:
             bucket_icon = None
 
-        # UI element
+        # UI element =>
+        # surface 
         topBar = pygame.Surface((config.CANVA_WIDTH + 500, config.TOOLBAR_HEIGHT))
         topBar.fill(config.WHITE)
         chatSurface = pygame.Surface((275, config.CANVA_HEIGHT))
         chatSurface.fill(config.WHITE)
-
-        # Define toolbar height
         toolbar_bg = pygame.Surface((config.CANVA_WIDTH, config.TOOLBAR_HEIGHT), pygame.SRCALPHA)
         toolbar_bg.fill((0, 0, 0, 200))#(0, 0, 0, 128))
+
+        # button
+        CENTER_POINT_X = config.CANVA_TOPLEFT[0]
+        CENTER_POINT_Y = config.CANVA_TOPLEFT[1]
         back_button = Button(10, config.HEIGHT - 45, 100, 30 , 'Back', config.RED, border_radius=0)
         pen_button = Button(config.CANVA_WIDTH, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
@@ -128,7 +131,7 @@ def load_assets(page, screen=any):
                                 'Pen', 
                                 config.BLACK, 
                                 border_width=3,
-                                border_radius=0, 
+                                radius=0, 
                                 icon=pen_icon)
         bucket_button = Button(config.CANVA_WIDTH + 40, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
@@ -136,7 +139,7 @@ def load_assets(page, screen=any):
                                 'Bucked', 
                                 config.BLACK, 
                                 border_width=3,
-                                border_radius=0, 
+                                radius=0, 
                                 icon=bucket_icon)
         eraser_button = Button(config.CANVA_WIDTH + 80, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
@@ -144,8 +147,16 @@ def load_assets(page, screen=any):
                                 'eraser', 
                                 config.BLACK, 
                                 border_width=3,
-                                border_radius=0, 
+                                radius=0, 
                                 icon=eraser_icon)
+        chatTextArea = TextInput(CENTER_POINT_X + config.CANVA_WIDTH + 10,
+                                CENTER_POINT_Y + config.CANVA_HEIGHT - 45,
+                                chatSurface.get_width() - 10,
+                                40,
+                                placeholder="Enter your name",
+                                radius=8,
+                                border_color = config.GRAY
+                                )
 
         # Color palette for drawing
         color_palette = [
@@ -194,7 +205,8 @@ def load_assets(page, screen=any):
             'color_buttons': color_buttons,
             'brush_buttons': brush_buttons,
             'topBar': topBar,
-            'chatSurface': chatSurface
+            'chatSurface': chatSurface,
+            'chatTextArea': chatTextArea
         }
         return canvasAsset
 

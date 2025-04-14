@@ -1,4 +1,4 @@
-import pygame, numpy
+import pygame, numpy, time
 import config
 config.add_tools
 from assets import load_assets
@@ -19,6 +19,7 @@ color_buttons = canvasAsset['color_buttons']
 brush_buttons = canvasAsset['brush_buttons']
 topBar = canvasAsset['topBar']
 chatSurface = canvasAsset['chatSurface']
+chatTextArea = canvasAsset['chatTextArea']
 
 pen_button.mode = config.PEN_MODE
 bucket_button.mode = config.FILL_MODE
@@ -70,6 +71,7 @@ def canvas_page(screen, event, game_state):
     pen_button.draw(screen)
     bucket_button.draw(screen)
     eraser_button.draw(screen)
+    chatTextArea.draw(screen)
 
     # color button
     for btn in color_buttons:
@@ -80,12 +82,11 @@ def canvas_page(screen, event, game_state):
     for i, btn in enumerate(brush_buttons):
         btn.button_type = 'brush'
         btn.draw(screen)
-        # if config.BRUSH_SIZES[i] == game_state.brushSize:
-        #     pygame.draw.rect(
-        #                 screen, config.WHITE, btn.rect.inflate(4, 4), 2, border_radius=7
-        #             )
 
     # button event handle
+    chatTextArea.handle_event(event)
+    chatTextArea.update(pygame.time.Clock().tick(60))
+
     if back_button.is_clicked(event):
         # game_state.state = config.MENU
         game_state.SET_DEFAULT()

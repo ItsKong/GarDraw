@@ -4,11 +4,12 @@ config.add_tools()
 from assets import load_assets
 
 menuAsset = None
-def menu_page(screen, event, game_state):
+def init_menu_assets(screen):
     global menuAsset
     if menuAsset is None:
-        menuAsset = load_assets('menu', screen)
+        menuAsset = load_assets(config.MENU)
 
+def menu_update(screen, game_state, dt):
     background = menuAsset['bg']
     logo = menuAsset['logo']
     create_room_button = menuAsset['create_room_button']
@@ -36,7 +37,17 @@ def menu_page(screen, event, game_state):
     # draw v.2
     create_room_button.draw(screen)
     join_room_button.draw(screen)
-    # event handdle
+
+    name_input.update(dt)
+    
+
+def menu_event(event, game_state):
+    menu_background = menuAsset['menu_bg']
+    name_input = menuAsset['name_input']
+    language_btn = menuAsset['language_btn']
+    create_room_button = menuAsset['create_room_button']
+    join_room_button = menuAsset['join_room_button']
+
     language_btn.handle_event(event)
     name_input.handle_event(event)
     if join_room_button.is_clicked(event):

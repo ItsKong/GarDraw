@@ -15,7 +15,7 @@ class Button:
         self.hoverColor = kwargs.get("hoverColor", color)
         self.text_color = kwargs.get("text_color", config.WHITE)
         self.font = pygame.font.Font(kwargs.get("font", None), kwargs.get("fontSize", 30))
-        self.border_radius = kwargs.get("border_radius", -1)
+        self.border_radius = kwargs.get("radius", -1)
         self.bdRadiusLT = kwargs.get("bdRadiusLT", -1)
         self.bdRadiusRT = kwargs.get("bdRadiusRT", -1)
         self.bdRadiusLB = kwargs.get("bdRadiusLB", -1)
