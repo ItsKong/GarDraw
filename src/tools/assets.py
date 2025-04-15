@@ -4,6 +4,7 @@ config.add_tools()
 from Button import Button
 from TextInput import TextInput
 from Dropdown import Dropdown
+from ChatUI import ChatUI
 
 def load_assets(page):
     if page == 'menu':
@@ -28,7 +29,6 @@ def load_assets(page):
 
         # menu componet
         menu_background = pygame.Surface((config.MENU_WIDTH, config.MENU_HEIGHT), pygame.SRCALPHA)
-
         # avatar select
         # avatarSelect = 
 
@@ -93,6 +93,8 @@ def load_assets(page):
     # =========================================================================================================
     
     if page == 'canvas':
+        CENTER_POINT_X = config.CANVA_TOPLEFT[0] 
+        CENTER_POINT_Y = config.CANVA_TOPLEFT[1]
         # Load tool icons
         try:
             eraser_icon = pygame.image.load("./picture/eraser.png")
@@ -116,14 +118,16 @@ def load_assets(page):
         # surface 
         topBar = pygame.Surface((config.CANVA_WIDTH + 500, config.TOOLBAR_HEIGHT))
         topBar.fill(config.WHITE)
-        chatSurface = pygame.Surface((275, config.CANVA_HEIGHT))
-        chatSurface.fill(config.WHITE)
+        chatSurface = pygame.Rect((config.CANVA_TOPLEFT[0]*3 + 205, config.CANVA_TOPLEFT[1], 275, config.CANVA_HEIGHT))
         toolbar_bg = pygame.Surface((config.CANVA_WIDTH, config.TOOLBAR_HEIGHT), pygame.SRCALPHA)
         toolbar_bg.fill((0, 0, 0, 200))#(0, 0, 0, 128))
+        chat_ui = ChatUI(CENTER_POINT_X + config.CANVA_WIDTH + 10,
+                         CENTER_POINT_Y + 5,
+                         chatSurface.width - 10,
+                         config.CANVA_HEIGHT - 10)
 
         # button
-        CENTER_POINT_X = config.CANVA_TOPLEFT[0]
-        CENTER_POINT_Y = config.CANVA_TOPLEFT[1]
+        
         back_button = Button(10, config.HEIGHT - 45, 100, 30 , 'Back', config.RED, border_radius=0)
         pen_button = Button(config.CANVA_WIDTH, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
@@ -152,14 +156,14 @@ def load_assets(page):
                                 radius=0, 
                                 icon=eraser_icon,
                                 mode=config.ERASE_MODE)
-        chatTextArea = TextInput(CENTER_POINT_X + config.CANVA_WIDTH + 10,
-                                CENTER_POINT_Y + config.CANVA_HEIGHT - 45,
-                                chatSurface.get_width() - 10,
-                                40,
-                                placeholder="Enter your name",
-                                radius=8,
-                                border_color = config.GRAY
-                                )
+        # chatTextArea = TextInput(CENTER_POINT_X + config.CANVA_WIDTH + 10,
+        #                         CENTER_POINT_Y + config.CANVA_HEIGHT - 45,
+        #                         chatSurface.width - 10,
+        #                         40,
+        #                         placeholder="Enter your name",
+        #                         radius=8,
+        #                         border_color = config.GRAY
+        #                         )
 
         # Color palette for drawing
         color_palette = [
@@ -196,8 +200,10 @@ def load_assets(page):
         # Brush butt
         for i, size in enumerate(config.BRUSH_SIZES):
             x_pos = brush_pos_x + i * (brush_button_size + brush_button_spacing)
-            brush_buttons.append(Button(x_pos, (config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT - 20) // 2 , 
-                                        brush_button_size, brush_button_size, '', config.BLACK, brushSize=size, mode=size))
+            brush_buttons.append(Button(x_pos, 
+                                        (config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT - 20)//2,
+                                        brush_button_size, brush_button_size, '', config.BLACK,
+                                        brushSize=size, mode=size))
         
         canvasAsset = {
             'back_button' : back_button,
@@ -209,7 +215,8 @@ def load_assets(page):
             'brush_buttons': brush_buttons,
             'topBar': topBar,
             'chatSurface': chatSurface,
-            'chatTextArea': chatTextArea
+            # 'chatTextArea': chatTextArea,
+            'chat_ui': chat_ui
         }
         return canvasAsset
 

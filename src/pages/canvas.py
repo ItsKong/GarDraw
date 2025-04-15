@@ -1,9 +1,10 @@
-import pygame, numpy, time
+import pygame, numpy
 import config
 config.add_tools
 from assets import load_assets
 from PaintTool import PenTool, FillTool
 from OneTimeCaller import OneTimeCaller
+from ChatUI import ChatUI
 OTC = OneTimeCaller()
 
 canvas = pygame.Surface((config.CANVA_WIDTH, config.CANVA_HEIGHT))
@@ -22,8 +23,8 @@ class CanvaUI:
         self.brush_buttons = canvasAssets['brush_buttons']
         self.topBar = canvasAssets['topBar']
         self.chatSurface = canvasAssets['chatSurface']
-        self.chatTextArea = canvasAssets['chatTextArea']
         self.canvas_rect = canvas.get_rect(topleft=(config.CANVA_TOPLEFT))
+        self.chat_ui = canvasAssets['chat_ui']
 
 pen_tool = PenTool(canvas)
 fill_tool = FillTool(canvas)
@@ -43,13 +44,17 @@ def drawing(pen_tool, game_state, event):
 
 def canva_update(screen, game_state, dt):
     OTC.call(lambda: setattr(game_state, 'canva', canvas)) # set canva in game_state once
-    # screen.fill(config.WHITE)
+
     screen.blit(game_state.background, (0, 0))
+    # pygame.draw.rect(screen, config.BLACK, 
+    #                  (config.CANVA_TOPLEFT[0]-5, config.CANVA_TOPLEFT[1]-20, 
+    #                   config.CANVA_WIDTH+10, config.CANVA_HEIGHT), border_radius=8)
     screen.blit(canvas, config.CANVA_TOPLEFT)
     screen.blit(canva_ui.toolbar_bg, (config.CANVA_TOPLEFT[0], 
                              config.CANVA_TOPLEFT[1] + config.CANVA_HEIGHT + 10))
     screen.blit(canva_ui.topBar, (config.CANVA_TOPLEFT[0] - 220, 30))
-    screen.blit(canva_ui.chatSurface, (config.CANVA_TOPLEFT[0]*3 + 205, config.CANVA_TOPLEFT[1]))
+    pygame.draw.rect(screen, config.WHITE, canva_ui.chatSurface, border_radius=8)
+
     # change color if selected
     canva_ui.pen_button.self_selected(game_state, config.GREEN)
     canva_ui.bucket_button.self_selected(game_state, config.GREEN)
@@ -70,8 +75,9 @@ def canva_update(screen, game_state, dt):
     canva_ui.pen_button.draw(screen)
     canva_ui.bucket_button.draw(screen)
     canva_ui.eraser_button.draw(screen)
-    canva_ui.chatTextArea.draw(screen)
-    canva_ui.chatTextArea.update(dt)
+    canva_ui.chat_ui.draw(screen)
+    canva_ui.chat_ui.update(dt)
+
 
     # color button
     for btn in canva_ui.color_buttons:
@@ -84,10 +90,11 @@ def canva_update(screen, game_state, dt):
         btn.draw(screen)
 
 
-def canva_event(event, game_state):
+def canva_event(event, game_state, player_state):
      # button event handle
-    canva_ui.chatTextArea.handle_event(event)
-    canva_ui.chatTextArea.update(pygame.time.Clock().tick(60))
+    # canva_ui.chatTextArea.handle_event(event)
+    # canva_ui.chatTextArea.update(pygame.time.Clock().tick(60))
+    canva_ui.chat_ui.handle_event(event, player_state)
 
     if canva_ui.back_button.is_clicked(event):
         # game_state.state = config.MENU

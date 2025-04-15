@@ -4,6 +4,7 @@ class TextInput:
     def __init__(self, x, y, width, height, **kwargs):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = ""
+        self.value = ''
         self.cursor_visible = True
         self.cursor_timer = 0
         self.cursor_position = len(self.text)
@@ -40,7 +41,8 @@ class TextInput:
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.active = self.rect.collidepoint(event.pos)
         if event.type == pygame.KEYDOWN and self.active:
-            if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
+            if event.key in (pygame.K_KP_ENTER, pygame.K_RETURN):
+                self.value = self.text
                 self.active = False
             elif event.key == pygame.K_BACKSPACE:
                 self.text = self.text[:-1]
@@ -71,7 +73,8 @@ class TextInput:
             cursor_x = self.rect.x + 10 + text_width
             cursor_y = self.rect.y + 10
             cursor_height = text_surf.get_height()
-            pygame.draw.line(surface, self.text_color, (cursor_x, cursor_y), (cursor_x, cursor_y + cursor_height), 2)
+            pygame.draw.line(surface, self.text_color, 
+                             (cursor_x, cursor_y), (cursor_x, cursor_y + cursor_height), 2)
     
     def x(self):
         return self.rect.x
