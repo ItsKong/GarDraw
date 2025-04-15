@@ -63,7 +63,8 @@ class Button:
 
         else:
             # Draw text
-            pygame.draw.rect(screen, self.hoverColor if is_hovered else self.color, self.rect, border_radius= self.border_radius)
+            pygame.draw.rect(screen, self.hoverColor if is_hovered else self.color, 
+                             self.rect, border_radius= self.border_radius)
             text_surface = self.font.render(self.text, True, self.text_color)
             text_rect = text_surface.get_rect(center=self.rect.center)
             screen.blit(text_surface, text_rect)

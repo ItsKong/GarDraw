@@ -9,6 +9,10 @@ class GameState:
         self.brushSize = config.BRUSH_SIZES[0]
         self.background = None
         self.canva = any
+        self.phase = config.GUESSING
+        self.round = 1
+        self.maxRound = 10
+        self.word = 'KUYYAi'
     
     def SET_DEFAULT(self):
         self.state = config.MENU

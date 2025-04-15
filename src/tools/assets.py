@@ -1,10 +1,11 @@
-import pygame, pygame_widgets
+import pygame
 import config
 config.add_tools()
 from Button import Button
 from TextInput import TextInput
 from Dropdown import Dropdown
 from ChatUI import ChatUI
+from TopBar import TopBarUI
 
 def load_assets(page):
     if page == 'menu':
@@ -55,7 +56,7 @@ def load_assets(page):
                                 config.HEIGHT*0.22,
                                 config.MENU_WIDTH*0.2, 
                                 40, 
-                                text='asd',
+                                text='English',
                                 text_color=config.RED,
                                 fontSize=25,
                                 border_radius=-1,
@@ -113,25 +114,42 @@ def load_assets(page):
             bucket_icon = pygame.transform.scale(bucket_icon, (30, 30))
         except pygame.error:
             bucket_icon = None
+        
+        try:
+            clock_icon = pygame.image.load('./picture/icon/timer.png')
+            clock_icon = pygame.transform.scale(clock_icon, (config.TOOLBAR_HEIGHT, config.TOOLBAR_HEIGHT))
+        except pygame.error:
+            clock_icon = None
+
+        try:
+            setting_icon = pygame.image.load('./picture/icon/settings.png')
+            setting_icon = pygame.transform.scale(setting_icon, (config.TOOLBAR_HEIGHT, config.TOOLBAR_HEIGHT))
+        except pygame.error:
+            setting_icon = None
 
         # UI element =>
         # surface 
-        topBar = pygame.Surface((config.CANVA_WIDTH + 500, config.TOOLBAR_HEIGHT))
-        topBar.fill(config.WHITE)
+        topBar = pygame.Rect((config.CANVA_TOPLEFT[0] - 220, 30,config.CANVA_WIDTH + 500, config.TOOLBAR_HEIGHT))
         chatSurface = pygame.Rect((config.CANVA_TOPLEFT[0]*3 + 205, config.CANVA_TOPLEFT[1], 275, config.CANVA_HEIGHT))
         toolbar_bg = pygame.Surface((config.CANVA_WIDTH, config.TOOLBAR_HEIGHT), pygame.SRCALPHA)
         toolbar_bg.fill((0, 0, 0, 200))#(0, 0, 0, 128))
-        chat_ui = ChatUI(CENTER_POINT_X + config.CANVA_WIDTH + 10,
-                         CENTER_POINT_Y + 5,
+        chat_ui = ChatUI(chatSurface.x + 5,
+                         chatSurface.y + 5,
                          chatSurface.width - 10,
-                         config.CANVA_HEIGHT - 10)
+                         chatSurface.height - 10)
+        topbarUI = TopBarUI(topBar.x, topBar.y, 
+                            topBar.width, topBar.height,
+                            icon={
+                                'clock_icon': clock_icon,
+                                'setting_icon': setting_icon
+                            })
 
         # button
-        
+        tool_btn_size = 40
         back_button = Button(10, config.HEIGHT - 45, 100, 30 , 'Back', config.RED, border_radius=0)
         pen_button = Button(config.CANVA_WIDTH, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
-                                35, 35 , 
+                                tool_btn_size, tool_btn_size , 
                                 'Pen', 
                                 config.BLACK, 
                                 border_width=3,
@@ -140,7 +158,7 @@ def load_assets(page):
                                 mode=config.PEN_MODE)
         bucket_button = Button(config.CANVA_WIDTH + 40, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
-                                35, 35 , 
+                                tool_btn_size, tool_btn_size , 
                                 'Bucked', 
                                 config.BLACK, 
                                 border_width=3,
@@ -149,22 +167,14 @@ def load_assets(page):
                                 mode=config.FILL_MODE)
         eraser_button = Button(config.CANVA_WIDTH + 80, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
-                                35, 35 , 
+                                tool_btn_size, tool_btn_size , 
                                 'eraser', 
                                 config.BLACK, 
                                 border_width=3,
                                 radius=0, 
                                 icon=eraser_icon,
                                 mode=config.ERASE_MODE)
-        # chatTextArea = TextInput(CENTER_POINT_X + config.CANVA_WIDTH + 10,
-        #                         CENTER_POINT_Y + config.CANVA_HEIGHT - 45,
-        #                         chatSurface.width - 10,
-        #                         40,
-        #                         placeholder="Enter your name",
-        #                         radius=8,
-        #                         border_color = config.GRAY
-        #                         )
-
+        
         # Color palette for drawing
         color_palette = [
             {"color": config.BLACK, "name": "Black"},
@@ -215,8 +225,8 @@ def load_assets(page):
             'brush_buttons': brush_buttons,
             'topBar': topBar,
             'chatSurface': chatSurface,
-            # 'chatTextArea': chatTextArea,
-            'chat_ui': chat_ui
+            'chat_ui': chat_ui,
+            'topbarUI': topbarUI
         }
         return canvasAsset
 

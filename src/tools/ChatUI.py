@@ -26,7 +26,7 @@ class ChatUI:
         self.chatTextArea.draw(self.surface)
         y = self.padding
         for msg in self.chat_messages:
-            msg_surface = self.font.render(f"{self.key}: {msg['anonymous']}", True, config.BLACK)
+            msg_surface = self.font.render(f"{self.key}: {msg[self.key]}", True, config.BLACK)
             self.surface.blit(msg_surface, (self.padding, y))
             y += self.lineHeight
         screen.blit(self.surface, self.rect.topleft)

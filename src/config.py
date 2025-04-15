@@ -51,12 +51,14 @@ MENU = "menu"
 DRAWING = "drawing"
 WORD_CHOOSING = "word_choosing"
 GUESSING = "guessing"
+WAITING = 'waiting'
 
 # Drawing mode
 DRAW_MODE = "draw"
 PEN_MODE = "pen"
 ERASE_MODE = "erase"
 FILL_MODE = "fill"
+SETTING = 'setting'
 
 # Fixed brush size options
 BRUSH_SIZES = [6, 15, 50]
