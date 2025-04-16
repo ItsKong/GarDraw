@@ -1,5 +1,5 @@
 import pygame, config
-from Button import Button
+from Button import TextButton
 from TextInput import TextInput
 
 class RmSettingUI:
@@ -14,23 +14,27 @@ class RmSettingUI:
         self.customWord = ''
 
         self.font = pygame.font.Font(kwargs.get("font", None), kwargs.get("fontSize", 30))
-        self.start = Button(5, height - 55, (width // 2) + 150, 50,
-                            text='Start', color=config.GREEN)
-        self.textArea = TextInput(5, (height//2) - 50, width - 10, (height//2) - 50)
+        self.start = TextButton(5, height - 55, (width // 2) + 150, 50,
+                            text='Start', color=config.GREEN, radius=8)
+        self.textArea = TextInput(5, (height//2) - 50, width - 10, (height//2) - 50, radius=8,
+                                  placeholder='Custom word. Separate by , (comma)')
 
-    def handle_event(self, e, game_state):
+    def handle_event(self, e, game_state, player_state, randword):
         if e.type == pygame.MOUSEBUTTONDOWN:
             adj_e = config.relative_pos(self.rect.x, self.rect.y, e)
-            if self.start.is_clicked(adj_e):                
-                game_state.rmSetting = False
             self.textArea.handle_event(adj_e)
+            if self.start.is_clicked(adj_e):        
+                game_state.playerList.append(player_state)
+                game_state.currentDrawer = player_state.username # shoulde be _id
+                game_state.rmSetting = False
         if e.type == pygame.KEYDOWN:
             self.textArea.handle_event(e)
             if self.textArea.value:
+                game_state.isCustomWord = True
                 self.customWord = self.textArea.value
 
     def display(self, screen, dt):
-        self.surface.fill(config.GRAY)
+        self.surface.fill(config.DARK_GRAY)
         maxPlayer = self.font.render("Max player", True, config.WHITE)
         drawTime = self.font.render("Draw time", True, config.WHITE)
         maxRounds = self.font.render("Max rounds", True, config.WHITE)

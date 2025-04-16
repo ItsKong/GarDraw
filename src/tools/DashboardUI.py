@@ -5,27 +5,14 @@ class DashboardUI:
         self.rect = pygame.Rect(x, y, width, height)
         self.boxHeight = 50
         self.surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        ghost = [
-    {"_id": "1", "username": "anonymous", "score": 12},
-    {"_id": "2", "username": "player_1", "score": 27},
-    {"_id": "3", "username": "gamerX", "score": 15},
-    {"_id": "4", "username": "champion_42", "score": 32},
-    {"_id": "5", "username": "shadowKnight", "score": 21},
-    {"_id": "5", "username": "shadowKnight", "score": 21}
-]
-        self.players = ghost
+        self.players= []
 
 
         self.font = pygame.font.Font(kwargs.get("font", None), kwargs.get("fontSize", 30))
 
     def handle_event(self, e, game_state, player_state):
-        # if player_state._id not in self.players:
-        #     self.players.append({
-        #         '_id': player_state._id,
-        #         'username': player_state.username,
-        #         'score': game_state.score
-        #     })
-        pass
+        self.players = game_state.playerList
+        
 
     def display(self, screen):
         self.surface.fill((0, 0, 0, 0))
@@ -49,8 +36,8 @@ class DashboardUI:
                                                      self.surface.get_width(),
                                                      self.boxHeight))
                 
-            name = self.font.render(ply['username'], True, config.BLACK)
-            score = self.font.render(f"{str(ply['score'])} points", True, config.BLACK)
+            name = self.font.render(ply.username, True, config.BLACK)
+            score = self.font.render(f"{str(ply.score)} points", True, config.BLACK)
             index = self.font.render(f"#{str(i + 1)}", True, config.BLACK)
             self.surface.blit(name, ((self.surface.get_width() - name.get_width()) // 2, y))
             self.surface.blit(score, ((self.surface.get_width() - name.get_width()) // 2, y + 20))

@@ -1,4 +1,4 @@
-import config, pygame
+import config
 
 class GameState:
     def __init__(self): # Default value
@@ -9,12 +9,18 @@ class GameState:
         self.brushSize = config.BRUSH_SIZES[0]
         self.background = None
         self.canva = any
-        self.phase = config.GUESSING
         self.rmSetting = False
         self.round = 1
-        self.maxRound = 10
-        self.word = 'KUYYAi'
+        self.maxRound = 3
+        self.word = ''
+        self.word_hint = ''
         self.score = 0
+        self.isCustomWord = False
+        self.timer = 0
+        self.playerList = [] # dashboard
+        self.chatLog = [] # chat ui
+        self.guessed_correctly = []
+        self.currentDrawer = ''
     
     def SET_DEFAULT(self):
         self.state = config.MENU
@@ -27,9 +33,12 @@ class GameState:
 
 class PlayerState:
     def __init__(self):
-        self._id = '1'
+        self._id = ''
+        self.isGuessing = False
+        self.isDrawer = True
         self.username = 'anonymous'
         self.avartar = ''
         self.room_id = ''
         self.score = 0
         self.setting = ''
+        self.message = ''

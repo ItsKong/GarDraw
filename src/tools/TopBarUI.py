@@ -1,13 +1,17 @@
 import pygame, config
 from Button import IconButton
+from GameSystem import RandomWord
 
 class TopBarUI:
     def __init__(self, x, y, width, height, **kwargs):
         self.rect = pygame.Rect(x, y, width, height)
         self.surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        self.font = pygame.font.Font(kwargs.get("font", None), kwargs.get("fontSize", 20))
-
+        self.font = pygame.font.Font(kwargs.get("font", None), kwargs.get("fontSize", 30))
+        self.guessWordSize = pygame.font.Font(kwargs.get("font", None), kwargs.get("fontSize", 50))
+        self.roomStatus = ''
+        self.hintWord = ''
         self.icon = kwargs.get('icon', {})
+        self.isGuessing = True
 
         self.setting_btn = IconButton(x + config.CANVA_WIDTH + 275 + 220 - config.TOOLBAR_HEIGHT, 
                             y,
@@ -17,26 +21,36 @@ class TopBarUI:
                             color=config.WHITE,
                             icon=self.icon['setting_icon'],
                             mode=config.SETTING)
-    def handle_event(self, e):
+    def handle_event(self, e, game_state):
+        # self.roomStatus = 
         pass
+    
+    def update(self, game_state, player_state):
+        self.isGuessing = player_state.isGuessing
 
     def display(self, screen, game_state):
         self.surface.fill((0,0,0,0))
         self.surface.blit(self.icon['clock_icon'], (0, 0))
-        phase = game_state.phase
-        phaseSurface = self.font.render(phase, True, config.BLACK)
-        if phase == config.WAITING:
-            self.surface.blit(phaseSurface, ((self.rect.width - self.rect.x)//2, 
-                                            self.rect.y // 2))
-        elif phase == config.GUESSING:
-            word = game_state.word
-            word = self.font.render(word, True, config.BLACK)
-            self.surface.blit(phaseSurface, ((self.rect.width - self.rect.x)//2, 
-                                            2))
-            self.surface.blit(word, ((self.rect.width - self.rect.x)//2,
-                                            self.rect.y - 2))
+        if game_state.rmSetting:
+            waiting = self.font.render("WAITING", True, config.BLACK)
+            self.surface.blit(waiting, ((self.rect.width - self.rect.x)//2, 
+                                            (self.rect.y ) // 2))
+        else:
+            if self.isGuessing:
+                self.hintWord = game_state.word_hint
+                self.hintWord = self.guessWordSize.render(self.hintWord, True, config.BLACK)
+                self.surface.blit(self.hintWord, ((self.rect.width - self.rect.x)//2,
+                                                (self.rect.y)//2))
+            else:
+                self.hintWord = game_state.word
+                self.hintWord = self.guessWordSize.render(self.hintWord, True, config.BLACK)
+                self.surface.blit(self.hintWord, ((self.rect.width - self.rect.x)//2,
+                                                (self.rect.y)//2))
         roundnn = f"Round {game_state.round} of {game_state.maxRound}"
+        timer = f"Timer: {game_state.timer}"
+        timerSur = self.font.render(timer, True, config.BLACK)
         roundSurface = self.font.render(roundnn, True, config.BLACK)
         self.surface.blit(roundSurface, (100, self.rect.y //2))
+        self.surface.blit(timerSur, (300, self.rect.y // 2))
         screen.blit(self.surface, self.rect.topleft)
         self.setting_btn.draw(screen)

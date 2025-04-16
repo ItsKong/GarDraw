@@ -1,10 +1,8 @@
 import pygame, numpy
 import config
-config.add_tools
 from assets import load_assets
 from PaintTool import PenTool, FillTool
 from OneTimeCaller import OneTimeCaller
-from ChatUI import ChatUI
 OTC = OneTimeCaller()
 
 canvas = pygame.Surface((config.CANVA_WIDTH, config.CANVA_HEIGHT))
@@ -82,7 +80,7 @@ def canva_update(screen, game_state, dt):
     ui.pen_button.draw(screen)
     ui.bucket_button.draw(screen)
     ui.eraser_button.draw(screen)
-    ui.chat_ui.draw(screen)
+    ui.chat_ui.draw(screen, game_state)
     ui.chat_ui.update(dt)
 
 
@@ -102,50 +100,54 @@ def canva_update(screen, game_state, dt):
 
 
 
-def canva_event(event, game_state, player_state):
-    if game_state.rmSetting:
-        ui.rmSetting.handle_event(event, game_state)
+def canva_event(event, game_state, player_state, roundManager, chatSys, randword):
+    if game_state.rmSetting: # room setting
+        ui.rmSetting.handle_event(event, game_state, player_state, randword)
         return
-    ui.chat_ui.handle_event(event, player_state)
+    elif not roundManager.round_active: # start round
+        roundManager.start_round()
+    ui.chat_ui.handle_event(event, game_state, player_state, chatSys)
     ui.dashboardUI.handle_event(event, game_state, player_state)
-
+    ui.topbarUI.update(game_state, player_state)
+    
     if ui.back_button.is_clicked(event):
         game_state.SET_DEFAULT()
-    if ui.pen_button.is_clicked(event):
-        game_state.tool_mode = config.PEN_MODE
-    if ui.bucket_button.is_clicked(event):
-        game_state.tool_mode = config.FILL_MODE
-    if ui.eraser_button.is_clicked(event):
-        game_state.tool_mode = config.ERASE_MODE
-    
-    for btn in ui.color_buttons:
-        if btn.is_clicked(event):
+    if player_state.isDrawer:
+        if ui.pen_button.is_clicked(event):
             game_state.tool_mode = config.PEN_MODE
-            game_state.current_color = btn.color
-    
-    for btn in ui.brush_buttons:
-        if btn.is_clicked(event):
-            game_state.brushSize = btn.brushSize
+        if ui.bucket_button.is_clicked(event):
+            game_state.tool_mode = config.FILL_MODE
+        if ui.eraser_button.is_clicked(event):
+            game_state.tool_mode = config.ERASE_MODE
+        
+        for btn in ui.color_buttons:
+            if btn.is_clicked(event):
+                game_state.tool_mode = config.PEN_MODE
+                game_state.current_color = btn.color
+        
+        for btn in ui.brush_buttons:
+            if btn.is_clicked(event):
+                game_state.brushSize = btn.brushSize
 
-    # mouse draw handle
-    if event.type == pygame.MOUSEBUTTONDOWN and ui.canvas_rect.collidepoint(event.pos):
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        canvas_x = mouse_x - config.CANVA_TOPLEFT[0]
-        canvas_y = mouse_y - config.CANVA_TOPLEFT[1]
-        if game_state.tool_mode == config.FILL_MODE: # fill mode
-            if fill_tool.is_above_ui(event):
-                fill_tool.current_color(game_state)
-                fill_tool.span_fill((canvas_x, canvas_y))
-        else:
-            pen_tool.drawing = True
-            pen_tool.last_pos = (canvas_x, canvas_y)
-            drawing(pen_tool, game_state, event)
+        # mouse draw handle
+        if event.type == pygame.MOUSEBUTTONDOWN and ui.canvas_rect.collidepoint(event.pos):
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            canvas_x = mouse_x - config.CANVA_TOPLEFT[0]
+            canvas_y = mouse_y - config.CANVA_TOPLEFT[1]
+            if game_state.tool_mode == config.FILL_MODE: # fill mode
+                if fill_tool.is_above_ui(event):
+                    fill_tool.current_color(game_state)
+                    fill_tool.span_fill((canvas_x, canvas_y))
+            else:
+                pen_tool.drawing = True
+                pen_tool.last_pos = (canvas_x, canvas_y)
+                drawing(pen_tool, game_state, event)
 
-    elif event.type == pygame.MOUSEBUTTONUP:
-        pen_tool.drawing = False
-        pen_tool.last_pos = None
+        elif event.type == pygame.MOUSEBUTTONUP:
+            pen_tool.drawing = False
+            pen_tool.last_pos = None
 
-    elif (event.type == pygame.MOUSEMOTION and pen_tool.drawing and pen_tool.last_pos 
-                and game_state.tool_mode != config.FILL_MODE):
-        if pen_tool.is_above_ui(event):
-            drawing(pen_tool, game_state, event)
+        elif (event.type == pygame.MOUSEMOTION and pen_tool.drawing and pen_tool.last_pos 
+                    and game_state.tool_mode != config.FILL_MODE):
+            if pen_tool.is_above_ui(event):
+                drawing(pen_tool, game_state, event)

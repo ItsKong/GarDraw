@@ -4,7 +4,6 @@ class ChatUI:
     def __init__(self, x, y, width, height, **kwargs):
         self.rect = pygame.Rect(x, y, width, height)
         self.surface = pygame.Surface((width, height))
-        self.chat_messages = []
         self.padding = 5
         self.input_height = 40
         self.max_lines = 100  # trim old messages
@@ -21,12 +20,12 @@ class ChatUI:
                                 border_color = config.GRAY
                                 )
 
-    def draw(self, screen):
+    def draw(self, screen, game_state):
         self.surface.fill(config.WHITE)
         self.chatTextArea.draw(self.surface)
         y = self.padding
-        for msg in self.chat_messages:
-            msg_surface = self.font.render(f"{self.key}: {msg[self.key]}", True, config.BLACK)
+        for name, msg in game_state.chatLog:
+            msg_surface = self.font.render(f"{name}: {msg}", True, config.BLACK)
             self.surface.blit(msg_surface, (self.padding, y))
             y += self.lineHeight
         screen.blit(self.surface, self.rect.topleft)
@@ -34,14 +33,23 @@ class ChatUI:
     def update(self, dt):
         self.chatTextArea.update(dt)
     
-    def handle_event(self, event, player_state):
+    def handle_event(self, event, game_state, player_state, chatSys):
         if event.type == pygame.MOUSEBUTTONDOWN:
             adj_e = config.relative_pos(self.rect.x, self.rect.y, event)
             self.chatTextArea.handle_event(adj_e)
         if event.type == pygame.KEYDOWN:
             self.chatTextArea.handle_event(event)
             if self.chatTextArea.value:
-                self.key = player_state.username
-                self.chat_messages.append({self.key : self.chatTextArea.value})
-                self.chatTextArea.text = ""   # Clear input text
-                self.chatTextArea.value = ""  # Clear stored value
+                msg = self.chatTextArea.value
+                print(msg)
+                if player_state.isGuessing:
+                    chatSys.check_guess(player_state.username, msg)
+                    self.chatTextArea.text = ''
+                    self.chatTextArea.value = ''
+                else:
+                    game_state.chatLog.append((player_state.username, msg))
+                    self.chatTextArea.text = ''
+                    self.chatTextArea.value = ''
+        elif event.type == pygame.KEYUP:
+            self.chatTextArea.handle_event(event)
+                    

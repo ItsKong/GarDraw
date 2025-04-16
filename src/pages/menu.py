@@ -1,6 +1,5 @@
 import config
 import pygame
-config.add_tools()
 from assets import load_assets
 
 ui = None

@@ -1,6 +1,5 @@
 import pygame
 import config
-config.add_tools()
 from Button import Button, BrushButton, TextButton, IconButton, ColorButton
 from TextInput import TextInput
 from Dropdown import Dropdown

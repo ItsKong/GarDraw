@@ -1,12 +1,11 @@
 import sys, os, pygame
 # from screeninfo import get_monitors
-def add_tools():
-    other_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'tools'))
-    sys.path.append(other_folder_path)
+def add_path():
+    tools_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'tools'))
+    pages_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pages'))
+    sys.path.append(tools_folder_path)
+    sys.path.append(pages_folder_path)
 
-def add_pages():
-    other_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pages'))
-    sys.path.append(other_folder_path)
 
 def relative_pos(x, y, e):
     # Calculate position relative to surface
@@ -64,7 +63,6 @@ TEST = (220, 220, 22, 0)
 # Game states
 MENU = "menu"
 DRAWING = "drawing"
-
 GUESSING = "guessing"
 WAITING = 'waiting'
 

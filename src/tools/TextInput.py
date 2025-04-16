@@ -43,7 +43,7 @@ class TextInput:
         if event.type == pygame.KEYDOWN and self.active:
             if event.key in (pygame.K_KP_ENTER, pygame.K_RETURN):
                 self.value = self.text
-                self.active = False
+                # self.active = False
             elif event.key == pygame.K_BACKSPACE:
                 self.text = self.text[:-1]
                 self.backspace_held = True
