@@ -29,14 +29,14 @@ while running:
     OTC_CANVA.call(lambda: init_canva_assets())
     if game_state.state == config.MENU:
         menu_update(screen, game_state, dt)
-    if game_state.state == 'canvas':
+    if game_state.state == config.DRAWING:
         canva_update(screen, game_state, dt)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if game_state.state == config.MENU:
             menu_event(event, game_state, player_state)
-        elif game_state.state == 'canvas':
+        elif game_state.state == config.DRAWING:
             canva_event(event, game_state, player_state)
 
     pygame.display.update()

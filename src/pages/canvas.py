@@ -13,7 +13,7 @@ ui = None
 
 class CanvaUI:
     def __init__(self):
-        canvasAssets = load_assets('canvas')
+        canvasAssets = load_assets(config.DRAWING)
         self.toolbar_bg = canvasAssets['toolbar_bg']
         self.back_button = canvasAssets['back_button']
         self.pen_button = canvasAssets['pen_button']
@@ -28,6 +28,7 @@ class CanvaUI:
         self.topbarUI = canvasAssets['topbarUI']
         self.dashboardSurface = canvasAssets['dashboardSurface']
         self.dashboardUI = canvasAssets['dashboardUI']
+        self.rmSetting = canvasAssets['rmSetting']
 
 pen_tool = PenTool(canvas)
 fill_tool = FillTool(canvas)
@@ -49,15 +50,14 @@ def canva_update(screen, game_state, dt):
     OTC.call(lambda: setattr(game_state, 'canva', canvas)) # set canva in game_state once
 
     screen.blit(game_state.background, (0, 0))
-    # pygame.draw.rect(screen, config.BLACK, 
-    #                  (config.CANVA_TOPLEFT[0]-5, config.CANVA_TOPLEFT[1]-20, 
-    #                   config.CANVA_WIDTH+10, config.CANVA_HEIGHT), border_radius=8)
+    pygame.draw.rect(screen, config.BLACK, 
+                     (config.CANVA_TOPLEFT[0]-5, config.CANVA_TOPLEFT[1]-20, 
+                      config.CANVA_WIDTH+10, config.CANVA_HEIGHT+30), border_radius=8)
     screen.blit(canvas, config.CANVA_TOPLEFT)
     screen.blit(ui.toolbar_bg, (config.CANVA_TOPLEFT[0], 
                              config.CANVA_TOPLEFT[1] + config.CANVA_HEIGHT + 10))
     pygame.draw.rect(screen, config.WHITE, ui.topBarSurface, border_radius=8)
     pygame.draw.rect(screen, config.WHITE, ui.chatSurface, border_radius=8)
-    # pygame.draw.rect(screen, config.BLACK, ui.dashboardSurface)
     ui.topbarUI.display(screen, game_state)
     ui.dashboardUI.display(screen)
     
@@ -95,17 +95,21 @@ def canva_update(screen, game_state, dt):
     for i, btn in enumerate(ui.brush_buttons):
         btn.button_type = 'brush'
         btn.draw(screen)
+    
+    if game_state.rmSetting:
+        ui.rmSetting.display(screen, dt)
+        return
+
 
 
 def canva_event(event, game_state, player_state):
-     # button event handle
-    # ui.chatTextArea.handle_event(event)
-    # ui.chatTextArea.update(pygame.time.Clock().tick(60))
+    if game_state.rmSetting:
+        ui.rmSetting.handle_event(event, game_state)
+        return
     ui.chat_ui.handle_event(event, player_state)
     ui.dashboardUI.handle_event(event, game_state, player_state)
 
     if ui.back_button.is_clicked(event):
-        # game_state.state = config.MENU
         game_state.SET_DEFAULT()
     if ui.pen_button.is_clicked(event):
         game_state.tool_mode = config.PEN_MODE

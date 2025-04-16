@@ -10,6 +10,7 @@ class GameState:
         self.background = None
         self.canva = any
         self.phase = config.GUESSING
+        self.rmSetting = False
         self.round = 1
         self.maxRound = 10
         self.word = 'KUYYAi'

@@ -36,19 +36,8 @@ class ChatUI:
     
     def handle_event(self, event, player_state):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # Calculate position relative to surface
-            rel_x = event.pos[0] - self.rect.x
-            rel_y = event.pos[1] - self.rect.y
-
-            # Create new adjusted event
-            adjusted_event = pygame.event.Event(
-                event.type,
-                {
-                    'pos': (rel_x, rel_y),
-                    'button': getattr(event, 'button', 0)
-                }
-            )
-            self.chatTextArea.handle_event(adjusted_event)
+            adj_e = config.relative_pos(self.rect.x, self.rect.y, event)
+            self.chatTextArea.handle_event(adj_e)
         if event.type == pygame.KEYDOWN:
             self.chatTextArea.handle_event(event)
             if self.chatTextArea.value:

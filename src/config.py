@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, pygame
 # from screeninfo import get_monitors
 def add_tools():
     other_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'tools'))
@@ -7,6 +7,21 @@ def add_tools():
 def add_pages():
     other_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pages'))
     sys.path.append(other_folder_path)
+
+def relative_pos(x, y, e):
+    # Calculate position relative to surface
+    rel_x = e.pos[0] - x
+    rel_y = e.pos[1] - y
+
+    # Create new adjusted event
+    adjusted_event = pygame.event.Event(
+        e.type,
+        {
+            'pos': (rel_x, rel_y),
+            'button': getattr(e, 'button', 0)
+        }
+    )
+    return adjusted_event
 
 FPS = 144
 
@@ -49,12 +64,11 @@ TEST = (220, 220, 22, 0)
 # Game states
 MENU = "menu"
 DRAWING = "drawing"
-WORD_CHOOSING = "word_choosing"
+
 GUESSING = "guessing"
 WAITING = 'waiting'
 
 # Drawing mode
-DRAW_MODE = "draw"
 PEN_MODE = "pen"
 ERASE_MODE = "erase"
 FILL_MODE = "fill"
