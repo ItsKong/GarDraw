@@ -39,7 +39,7 @@ class RoundManager:
     def start_round(self):
         # set game state
         self.words = self.randword.choose_word()
-        self.game_state.timer = 5
+        self.game_state.timer = 30
         self.game_state.word = self.words
         self.game_state.word_hint = ("_" + " ") * len(self.game_state.word)
         self.game_state.guessed_correctly = set()
