@@ -6,6 +6,7 @@ from TextInput import TextInput
 from Dropdown import Dropdown
 from ChatUI import ChatUI
 from TopBar import TopBarUI
+from DashboardUI import DashboardUI
 
 def load_assets(page):
     if page == 'menu':
@@ -94,8 +95,6 @@ def load_assets(page):
     # =========================================================================================================
     
     if page == 'canvas':
-        CENTER_POINT_X = config.CANVA_TOPLEFT[0] 
-        CENTER_POINT_Y = config.CANVA_TOPLEFT[1]
         # Load tool icons
         try:
             eraser_icon = pygame.image.load("./picture/eraser.png")
@@ -133,6 +132,11 @@ def load_assets(page):
         chatSurface = pygame.Rect((config.CANVA_TOPLEFT[0]*3 + 205, config.CANVA_TOPLEFT[1], 275, config.CANVA_HEIGHT))
         toolbar_bg = pygame.Surface((config.CANVA_WIDTH, config.TOOLBAR_HEIGHT), pygame.SRCALPHA)
         toolbar_bg.fill((0, 0, 0, 200))#(0, 0, 0, 128))
+        dashboardSurface = pygame.Rect((config.CANVA_TOPLEFT[0] - 220,
+                                        config.CANVA_TOPLEFT[1],
+                                        215,
+                                        config.CANVA_HEIGHT))
+
         chat_ui = ChatUI(chatSurface.x + 5,
                          chatSurface.y + 5,
                          chatSurface.width - 10,
@@ -143,6 +147,10 @@ def load_assets(page):
                                 'clock_icon': clock_icon,
                                 'setting_icon': setting_icon
                             })
+        dashboardUI = DashboardUI(dashboardSurface.x,
+                                  dashboardSurface.y,
+                                  dashboardSurface.width,
+                                  dashboardSurface.height)
 
         # button
         tool_btn_size = 40
@@ -226,7 +234,9 @@ def load_assets(page):
             'topBar': topBar,
             'chatSurface': chatSurface,
             'chat_ui': chat_ui,
-            'topbarUI': topbarUI
+            'topbarUI': topbarUI,
+            'dashboardSurface': dashboardSurface,
+            'dashboardUI': dashboardUI
         }
         return canvasAsset
 

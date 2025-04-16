@@ -26,6 +26,8 @@ class CanvaUI:
         self.canvas_rect = canvas.get_rect(topleft=(config.CANVA_TOPLEFT))
         self.chat_ui = canvasAssets['chat_ui']
         self.topbarUI = canvasAssets['topbarUI']
+        self.dashboardSurface = canvasAssets['dashboardSurface']
+        self.dashboardUI = canvasAssets['dashboardUI']
 
 pen_tool = PenTool(canvas)
 fill_tool = FillTool(canvas)
@@ -55,7 +57,9 @@ def canva_update(screen, game_state, dt):
                              config.CANVA_TOPLEFT[1] + config.CANVA_HEIGHT + 10))
     pygame.draw.rect(screen, config.WHITE, ui.topBarSurface, border_radius=8)
     pygame.draw.rect(screen, config.WHITE, ui.chatSurface, border_radius=8)
+    # pygame.draw.rect(screen, config.BLACK, ui.dashboardSurface)
     ui.topbarUI.display(screen, game_state)
+    ui.dashboardUI.display(screen)
     
 
     # change color if selected
@@ -98,6 +102,7 @@ def canva_event(event, game_state, player_state):
     # ui.chatTextArea.handle_event(event)
     # ui.chatTextArea.update(pygame.time.Clock().tick(60))
     ui.chat_ui.handle_event(event, player_state)
+    ui.dashboardUI.handle_event(event, game_state, player_state)
 
     if ui.back_button.is_clicked(event):
         # game_state.state = config.MENU

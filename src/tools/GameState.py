@@ -13,6 +13,7 @@ class GameState:
         self.round = 1
         self.maxRound = 10
         self.word = 'KUYYAi'
+        self.score = 0
     
     def SET_DEFAULT(self):
         self.state = config.MENU
@@ -25,6 +26,7 @@ class GameState:
 
 class PlayerState:
     def __init__(self):
+        self._id = '1'
         self.username = 'anonymous'
         self.avartar = ''
         self.room_id = ''
