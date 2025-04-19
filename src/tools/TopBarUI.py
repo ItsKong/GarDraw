@@ -21,11 +21,8 @@ class TopBarUI:
                             color=config.WHITE,
                             icon=self.icon['setting_icon'],
                             mode=config.SETTING)
-    def handle_event(self, e, game_state):
-        # self.roomStatus = 
-        pass
     
-    def update(self, game_state, player_state):
+    def update(self, player_state):
         self.isGuessing = player_state.isGuessing
 
     def display(self, screen, game_state):
@@ -35,16 +32,18 @@ class TopBarUI:
             waiting = self.font.render("WAITING", True, config.BLACK)
             self.surface.blit(waiting, ((self.rect.width - self.rect.x)//2, 
                                             (self.rect.y ) // 2))
+            screen.blit(self.surface, self.rect.topleft)
+            return
         else:
             if self.isGuessing:
-                self.hintWord = game_state.word_hint
-                self.hintWord = self.guessWordSize.render(self.hintWord, True, config.BLACK)
-                self.surface.blit(self.hintWord, ((self.rect.width - self.rect.x)//2,
+                hintWord = game_state.word_hint
+                hintWords = self.guessWordSize.render(hintWord, True, config.BLACK)
+                self.surface.blit( hintWords, ((self.rect.width - self.rect.x)//2,
                                                 (self.rect.y)//2))
             else:
-                self.hintWord = game_state.word
-                self.hintWord = self.guessWordSize.render(self.hintWord, True, config.BLACK)
-                self.surface.blit(self.hintWord, ((self.rect.width - self.rect.x)//2,
+                hintWord2 = game_state.word
+                hintWord2s = self.guessWordSize.render(hintWord2, True, config.BLACK)
+                self.surface.blit(hintWord2s, ((self.rect.width - self.rect.x)//2,
                                                 (self.rect.y)//2))
         roundnn = f"Round {game_state.round} of {game_state.maxRound}"
         timer = f"Timer: {game_state.timer}"

@@ -44,7 +44,7 @@ def drawing(pen_tool, game_state, event):
     pen_tool.use()
     pen_tool.last_pos = pen_tool.current_pos  # Update for the next motion
 
-def canva_update(screen, game_state, dt):
+def canva_update(screen, game_state, dt, player_state):
     OTC.call(lambda: setattr(game_state, 'canva', canvas)) # set canva in game_state once
 
     screen.blit(game_state.background, (0, 0))
@@ -57,6 +57,7 @@ def canva_update(screen, game_state, dt):
     pygame.draw.rect(screen, config.WHITE, ui.topBarSurface, border_radius=8)
     pygame.draw.rect(screen, config.WHITE, ui.chatSurface, border_radius=8)
     ui.topbarUI.display(screen, game_state)
+    ui.topbarUI.update(player_state)
     ui.dashboardUI.display(screen)
     
 
@@ -100,18 +101,25 @@ def canva_update(screen, game_state, dt):
 
 
 
-def canva_event(event, game_state, player_state, roundManager, chatSys, randword):
-    if game_state.rmSetting: # room setting
-        ui.rmSetting.handle_event(event, game_state, player_state, randword)
-        return
-    elif not roundManager.round_active: # start round
-        roundManager.start_round()
-    ui.chat_ui.handle_event(event, game_state, player_state, chatSys)
-    ui.dashboardUI.handle_event(event, game_state, player_state)
-    ui.topbarUI.update(game_state, player_state)
-    
+def canva_event(event, game_state, player_state, roundManager, chatSys, db):
     if ui.back_button.is_clicked(event):
+        roundManager.SET_DEFAULT()
+        player_state.SET_DEFAULT()
         game_state.SET_DEFAULT()
+        ui.rmSetting.set_text_default()
+        db.delete_to(game_state)
+        return
+    ui.dashboardUI.handle_event(event, game_state, player_state)
+    if game_state.rmSetting: # room setting
+        ui.rmSetting.handle_event(event, game_state, player_state, db)
+        return
+    elif not roundManager.round_active and not game_state.rmSetting: # start round
+        print(game_state.timer)
+        roundManager.start_round()
+        player_state.sync_player_local(game_state)
+        return
+    ui.chat_ui.handle_event(event, game_state, player_state, chatSys)
+    
     if player_state.isDrawer:
         if ui.pen_button.is_clicked(event):
             game_state.tool_mode = config.PEN_MODE

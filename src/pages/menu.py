@@ -1,5 +1,5 @@
 import config
-import pygame
+import pygame, uuid
 from assets import load_assets
 
 ui = None
@@ -52,12 +52,18 @@ def menu_event(event, game_state, player_state):
     
     if username == '':
         player_state.username = 'anonymous'
+        player_state._id = str(uuid.uuid4())
     else:
         player_state.username = username
+        player_state._id = str(uuid.uuid4())
 
     if ui.join_room_button.is_clicked(event):
+        # get room id and add player to room game state in db
+        # gameState => host 
+        # get random _id gameState then pull by _id
         game_state.state = config.DRAWING
     if ui.create_room_button.is_clicked(event):
+        game_state.playerList.append(player_state)
         game_state.rmSetting = True
         game_state.state = config.DRAWING
         

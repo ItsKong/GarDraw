@@ -1,14 +1,28 @@
 # random word, timer, chat interactive, round count
 import random, pygame, config
 
-class GameState:
-    def __init__(self):
-        self.players = []
-        self.current_drawer_index = -1  # Start at -1 so first round sets 0
 
-    def add_player(self, player):
-        self.players.append(player)
-        print(f"{player.username} joined the game.")
+class PlayerManager:
+    def __init__(self, db):
+        self.db = db
+    
+    def join_room(self, obj, _id):
+        # get list _id => rand.choice => join
+        # condition
+        # if player in room same name != join
+        # if [] != join
+        # when not join => message "There are no avalible room"
+        obj_dict = obj.to_dict()
+        id_list = self.db.find({}, {'_id', 1})
+        if id_list != None:
+            # self.db.s
+            pass
+        else:
+            print("There are no avalible room")
+
+    def left_room(self, obj, _id):
+        pass
+        
 
 class RandomWord:
     def __init__(self, game_state):
@@ -28,18 +42,28 @@ class RoundManager:
     # timer each round and choose new player, word next round
     # endround when someone guess the right word or timer runnint out
 
-    def __init__(self, game_state, randword):
+    def __init__(self, game_state, randword, db):
         self.game_state = game_state
         self.randword = randword
+        self.db = db
         self.words =  [] #word or ["apple", "car", "pizza", "bicycle"]
         self.last_tick = pygame.time.get_ticks()
         self.round_active = False
         self.areadyDraw = []
     
+    def SET_DEFAULT(self):
+        self.words =  [] #word or ["apple", "car", "pizza", "bicycle"]
+        self.last_tick = pygame.time.get_ticks()
+        self.round_active = False
+        self.areadyDraw = []
+        # self.game_state.guessed_correctly.clear()
+    
     def start_round(self):
         # set game state
         self.words = self.randword.choose_word()
-        self.game_state.timer = 30
+        self.game_state.timer = self.game_state.timer if self.game_state.timer > 0 else 10
+        self.game_state.maxRound = self.game_state.maxRound if ( self.game_state.maxRound > 0 and
+                                                        self.game_state.maxRound < self.game_state.maxPlayer) else 3
         self.game_state.word = self.words
         self.game_state.word_hint = ("_" + " ") * len(self.game_state.word)
         self.game_state.guessed_correctly = set()
@@ -47,12 +71,14 @@ class RoundManager:
 
         # rotate drawer
         for p in self.game_state.playerList:
-            if p.username in self.areadyDraw:
+            if p._id in self.areadyDraw:
+                print("EIEI")
                 p.isGuessing = True
                 p.isDrawer = False
             else:
                 print('hi', self.game_state.currentDrawer)
                 print(f"{p.username} is drawer")
+        self.db.update_to(self.game_state)
 
     def update(self):
         # print(self.game_state.timer)
@@ -73,14 +99,19 @@ class RoundManager:
             self.game_state.state = "result"
         else:
             self.areadyDraw.append(self.game_state.currentDrawer)
+            self.game_state.word = ''
+            self.game_state.word_hint = ''
+            self.game_state.canva.fill(config.WHITE)
+            self.game_state.chatLog = []
             self.start_round()
 
         
 
 class ChatSystem:
-    def __init__(self, game_state, player_state):
+    def __init__(self, game_state, player_state, db):
         self.game_state = game_state
         self.player_state = player_state
+        self.db = db
 
     def check_guess(self, player_name, message):
         if message.strip().lower() == self.game_state.word.lower():
@@ -90,8 +121,11 @@ class ChatSystem:
                 print(f"{player_name} guessed the word correctly!")
                 self.award_points(player_name)
                 self.player_state.isGuessing = False
+                self.db.update_to(self.game_state)
+                return f"{player_name} guessed the word correctly!"
         else:
             print('fuck you')
+            return ''
 
     def award_points(self, player_name):
         for player in self.game_state.playerList:

@@ -19,7 +19,10 @@ class DashboardUI:
         visible_rows = self.surface.get_height() // self.boxHeight
         for i, ply in enumerate(self.players[:visible_rows]):
             y = i * self.boxHeight 
-            bgColor = config.WHITE if i % 2 == 0 else config.GRAY
+            if ply.isDrawer:
+                bgColor = config.ORANGE
+            else:
+                bgColor = config.WHITE if i % 2 == 0 else config.GRAY
 
             if i == 0:
                 pygame.draw.rect(self.surface, bgColor, (0, y, 

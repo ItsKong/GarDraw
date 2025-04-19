@@ -40,6 +40,8 @@ class TextInput:
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.active = self.rect.collidepoint(event.pos)
+            if not self.active:
+                self.value = self.text
         if event.type == pygame.KEYDOWN and self.active:
             if event.key in (pygame.K_KP_ENTER, pygame.K_RETURN):
                 self.value = self.text

@@ -25,7 +25,10 @@ class ChatUI:
         self.chatTextArea.draw(self.surface)
         y = self.padding
         for name, msg in game_state.chatLog:
-            msg_surface = self.font.render(f"{name}: {msg}", True, config.BLACK)
+            if name == '':
+                msg_surface = self.font.render(f"{msg}", True, config.BLACK)
+            else:
+                msg_surface = self.font.render(f"{name}: {msg}", True, config.BLACK)
             self.surface.blit(msg_surface, (self.padding, y))
             y += self.lineHeight
         screen.blit(self.surface, self.rect.topleft)
@@ -41,9 +44,10 @@ class ChatUI:
             self.chatTextArea.handle_event(event)
             if self.chatTextArea.value:
                 msg = self.chatTextArea.value
-                print(msg)
                 if player_state.isGuessing:
-                    chatSys.check_guess(player_state.username, msg)
+                    winner = chatSys.check_guess(player_state.username, msg)
+                    if winner != '':
+                        game_state.chatLog.append(('', winner))
                     self.chatTextArea.text = ''
                     self.chatTextArea.value = ''
                 else:
