@@ -42,7 +42,8 @@ class GameState:
         except Exception as e:
             print("Syncing Fail error: ", str(e))
     
-    def join_game(self, db, id=None):
+    def join_game(self, obj, db, id=None):
+        # pull => sync local => append player local => update db
         try:
             if id:
                 db.pull_from_db(self, id)
@@ -50,6 +51,11 @@ class GameState:
                 lists = db.get_all_id()
                 randID = random.choice(lists)
                 db.pull_from_db(self, randID)
+            self.playerList = [PlayerState(**p) for p in self.playerList] 
+            print(type(self.playerList[0]))
+            # print(type(self.playerList[0]))
+            self.playerList.append(obj)
+            db.update(self)
             return True
         except Exception as e:
             print("Joining Fail error:", str(e))
@@ -79,17 +85,17 @@ class GameState:
         self.currentDrawer = ''
 
 class PlayerState:
-    def __init__(self):
-        self._id = '' # python gen
-        self.isGuessing = False
-        self.isDrawer = True
-        self.isHost = True
-        self.username = 'anonymous'
-        self.avartar = ''
-        self.room_id = ''
-        self.score = 0
-        self.setting = ''
-        self.message = ''
+    def __init__(self, **kwargs):
+        self._id = kwargs.get('_id', '')
+        self.isGuessing = kwargs.get('isGuessing', False)
+        self.isDrawer = kwargs.get('isDrawer', False)
+        self.isHost = kwargs.get('isHost', False)
+        self.username = kwargs.get('username', 'anonymous')
+        self.avartar = kwargs.get('avartar', '')
+        self.room_id = kwargs.get('room_id', '')
+        self.score = kwargs.get('score', 0)
+        self.setting = kwargs.get('setting', '')
+        self.message = kwargs.get('message', '')
     
     def to_dict(self):
         tmp_dict = self.__dict__.copy()
@@ -98,8 +104,8 @@ class PlayerState:
     def SET_DEFAULT(self):
         self._id = '' # python gen
         self.isGuessing = False
-        self.isDrawer = True
-        self.isHost = True
+        self.isDrawer = False
+        self.isHost = False
         self.username = 'anonymous'
         self.avartar = ''
         self.room_id = ''

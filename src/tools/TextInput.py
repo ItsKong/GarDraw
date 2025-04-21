@@ -1,4 +1,4 @@
-import pygame
+import pygame, re
 
 class TextInput:
     def __init__(self, x, y, width, height, **kwargs):
@@ -43,6 +43,14 @@ class TextInput:
             if not self.active:
                 self.value = self.text
         if event.type == pygame.KEYDOWN and self.active:
+            if event.key == pygame.K_v and event.mod & pygame.KMOD_CTRL:
+                clipboard_raw = pygame.scrap.get("text/plain;charset=utf-8")
+                if clipboard_raw:
+                    clipboard_text = clipboard_raw.decode('utf-8')
+                    cleaned = clipboard_text.replace('\x00', '')
+                    self.text += cleaned  # ✅ Paste here
+                    return
+            
             if event.key in (pygame.K_KP_ENTER, pygame.K_RETURN):
                 self.value = self.text
                 # self.active = False
@@ -54,7 +62,6 @@ class TextInput:
                 self.text += event.unicode
         else:
             self.backspace_held = False
-
 
     def draw(self, surface):
         # Draw box

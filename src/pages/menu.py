@@ -66,20 +66,21 @@ def menu_event(event, game_state, player_state, db):
         # get room id and add player to room game state in db
         # gameState => host 
         # get random _id gameState then pull by _id
+        # append local player => game_state.update_to()
         SET_player(username, player_state)
-        if ui.room_id_input.value == '':
-            if game_state.join_game(db):
-                game_state.state = config.DRAWING
-            else: return
+        rmid = ui.room_id_input.value if ui.room_id_input.value != '' else None
+        joined = game_state.join_game(player_state, db, rmid)
+        if joined:
+            print(game_state.playerList)
+            game_state.state = config.DRAWING
         else:
-            rmid = ui.room_id_input.value
-            if game_state.join_game(db, id=rmid):
-                game_state.state = config.DRAWING
-            else: return
+            return
 
     if ui.create_room_button.is_clicked(event):
         SET_player(username, player_state)
         game_state.playerList.append(player_state)
+        game_state.currentDrawer = player_state._id # shoulde be _id
+        game_state.currentHost = player_state._id
         game_state.rmSetting = True
         game_state.state = config.DRAWING
         db.insert_to(game_state)  

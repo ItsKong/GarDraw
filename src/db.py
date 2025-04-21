@@ -90,7 +90,7 @@ class DB:
                 for key, value in data.items():
                     if hasattr(obj, key):
                         setattr(obj, key, value)
-                    print("Object Synchronized!")
+                print("Object Synchronized!")
         except Exception as e:
             logging.error("Failed to synchronized:", str(e))
 

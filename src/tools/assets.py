@@ -31,19 +31,17 @@ def load_assets(page):
 
         # menu componet
         menu_background = pygame.Surface((config.MENU_WIDTH, config.MENU_HEIGHT), pygame.SRCALPHA)
-        # avatar select
-        # avatarSelect = 
 
         # button v.2
-        join_room_button = TextButton(config.WIDTH*0.3649, 
-                                    config.HEIGHT*0.43, 
+        join_room_button = TextButton(config.MENU_TOPLEFT[0] + 10, 
+                                    config.MENU_TOPLEFT[1] + 170, 
                                     config.MENU_WIDTH - 20, 
                                     50, 
                                     text="JOIN ROOM", color=config.GREEN,
                                     radius=8,
                                     hoverColor=config.SEL_GREEN)
-        create_room_button = TextButton(config.WIDTH*0.3649, 
-                                  config.HEIGHT*0.5, 
+        create_room_button = TextButton(config.MENU_TOPLEFT[0] + 10, 
+                                    config.MENU_TOPLEFT[1] + 230, 
                                   config.MENU_WIDTH - 20, 
                                   40, 
                                   text="CREATE PRIVATE ROOM", color=config.ORANGE,
@@ -77,7 +75,7 @@ def load_assets(page):
                                 placeholder="Enter your name",
                                 radius=8)
         room_id_input = TextInput(config.MENU_TOPLEFT[0] + 10,  
-                                (config.MENU_TOPLEFT[1]*2) - 60 ,           
+                                (config.MENU_TOPLEFT[1] + 100) ,           
                                 config.MENU_WIDTH - 20,                        
                                 input_box_height,                       
                                 placeholder="Room id",
@@ -100,7 +98,7 @@ def load_assets(page):
     # =========================================================================================================
     # ====================================  SECTION CANVA =====================================================
     # =========================================================================================================
-    
+    # menu page butt, tool bar, topbar, chat
     if page == config.DRAWING:
         # Load tool icons
         try:
@@ -135,7 +133,8 @@ def load_assets(page):
 
         # UI element =>
         # surface 
-        topBar = pygame.Rect((config.CANVA_TOPLEFT[0] - 220, 25,config.CANVA_WIDTH + 500, config.TOOLBAR_HEIGHT))
+        topBar = pygame.Rect((config.CANVA_TOPLEFT[0] - 220, config.CANVA_TOPLEFT[1] - 80,
+                              config.CANVA_WIDTH + 500, config.TOOLBAR_HEIGHT))
         chatSurface = pygame.Rect((config.CANVA_TOPLEFT[0]*3 + 210, config.CANVA_TOPLEFT[1], 275, config.CANVA_HEIGHT))
         toolbar_bg = pygame.Surface((config.CANVA_WIDTH, config.TOOLBAR_HEIGHT), pygame.SRCALPHA)
         toolbar_bg.fill((0, 0, 0, 0)) #(0, 0, 0, 128))
@@ -160,7 +159,7 @@ def load_assets(page):
                                   dashboardSurface.height)
         rmSetting = RmSettingUI(config.CANVA_TOPLEFT[0], config.CANVA_TOPLEFT[1],
                                 config.CANVA_WIDTH, config.CANVA_HEIGHT)
-
+        
         # button
         tool_btn_size = 40
         back_button = TextButton(10, config.HEIGHT - 45, 100, 30 , text='Back', color=config.RED, border_radius=0)
