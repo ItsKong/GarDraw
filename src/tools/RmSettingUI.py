@@ -17,6 +17,8 @@ class RmSettingUI:
         self.font = pygame.font.Font(kwargs.get("font", None), kwargs.get("fontSize", 30))
         self.start = TextButton(5, height - 55, (width // 2) + 150, 50,
                             text='Start', color=config.GREEN, radius=8)
+        self.invite = TextButton((width//2) + 160, height - 55, (width//4) + 30, 50,
+                                text='Invite', color=config.ORANGE, radius=8)
         self.textArea = TextInput(5, (height//2) - 50, width - 10, (height//2) - 50, radius=8,
                                   placeholder='Custom word. Separate by , (comma)')
         self.maxplyBtn = TextInput(200, self.baseH-10, self.rect.width//2, self.baseH+10, radius=8,
@@ -42,38 +44,28 @@ class RmSettingUI:
         self.maxRndBtn.active = False
 
     def handle_event(self, e, game_state, player_state, db):
-        if e.type == pygame.MOUSEBUTTONDOWN:
-            adj_e = config.relative_pos(self.rect.x, self.rect.y, e)
-            self.textArea.handle_event(adj_e)
-            self.maxplyBtn.handle_event(adj_e)
-            self.drawTimeBtn.handle_event(adj_e)
-            self.maxRndBtn.handle_event(adj_e)
-            if self.start.is_clicked(adj_e):   
+        adj_e = config.relative_pos(self.rect.x, self.rect.y, e)
+        self.textArea.handle_event(adj_e)
+        self.maxplyBtn.handle_event(adj_e)
+        self.drawTimeBtn.handle_event(adj_e)
+        self.maxRndBtn.handle_event(adj_e)
+        if self.textArea.value:
+            game_state.isCustomWord = True
+            self.customWord = self.textArea.value
+        if self.maxplyBtn.value.isdigit():
+            game_state.maxPlayer = int(self.maxplyBtn.value)
+        if self.drawTimeBtn.value.isdigit():
+            game_state.timer = int(self.drawTimeBtn.value)
+        if self.maxRndBtn.value.isdigit():
+            game_state.maxRound = int(self.maxRndBtn.value)
 
-                game_state.currentDrawer = player_state._id # shoulde be _id
-                game_state.rmSetting = False
-                db.insert_to(game_state)
-        if e.type == pygame.KEYDOWN:
-            self.textArea.handle_event(e)
-            self.maxplyBtn.handle_event(e)
-            self.drawTimeBtn.handle_event(e)
-            self.maxRndBtn.handle_event(e)
-            if self.textArea.value:
-                game_state.isCustomWord = True
-                self.customWord = self.textArea.value
-            if self.maxplyBtn.value.isdigit():
-                game_state.maxPlayer = int(self.maxplyBtn.value)
-            if self.drawTimeBtn.value.isdigit():
-                game_state.timer = int(self.drawTimeBtn.value)
-                print(game_state.timer)
-            if self.maxRndBtn.value.isdigit():
-                game_state.maxRound = int(self.maxRndBtn.value)
-        elif e.type == pygame.KEYUP:
-            self.textArea.handle_event(e)
-            self.maxplyBtn.handle_event(e)
-            self.drawTimeBtn.handle_event(e)
-            self.maxRndBtn.handle_event(e)
-
+        if self.start.is_clicked(adj_e):   
+            game_state.currentDrawer = player_state._id # shoulde be _id
+            game_state.rmSetting = False 
+        if self.invite.is_clicked(adj_e):
+            txt = str(game_state._id)
+            pygame.scrap.put(pygame.SCRAP_TEXT, txt.encode('utf-8'))
+            
 
     def display(self, screen, dt):
         # print(self.drawTimeBtn.value)
@@ -87,6 +79,7 @@ class RmSettingUI:
         self.maxplyBtn.draw(self.surface)
         self.drawTimeBtn.draw(self.surface)
         self.maxRndBtn.draw(self.surface)
+        self.invite.draw(self.surface)
 
         self.textArea.update(dt)
         self.maxplyBtn.update(dt)

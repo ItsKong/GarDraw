@@ -39,7 +39,7 @@ def load_assets(page):
                                     config.HEIGHT*0.43, 
                                     config.MENU_WIDTH - 20, 
                                     50, 
-                                    text="PLAY", color=config.GREEN,
+                                    text="JOIN ROOM", color=config.GREEN,
                                     radius=8,
                                     hoverColor=config.SEL_GREEN)
         create_room_button = TextButton(config.WIDTH*0.3649, 
@@ -70,13 +70,18 @@ def load_assets(page):
 
         # Name input box position updated to be above the first button
         input_box_width, input_box_height = 250, 40
-        name_input = TextInput(config.WIDTH*0.3649,  
-                                config.HEIGHT*0.22,           
-                                config.MENU_WIDTH*0.6,                        
-                                input_box_height,                       
+        name_input = TextInput(config.MENU_TOPLEFT[0] + 10,  
+                                config.MENU_TOPLEFT[1] + 20,           
+                                config.MENU_WIDTH - 20,                        
+                                input_box_height + 15,                       
                                 placeholder="Enter your name",
                                 radius=8)
-        
+        room_id_input = TextInput(config.MENU_TOPLEFT[0] + 10,  
+                                (config.MENU_TOPLEFT[1]*2) - 60 ,           
+                                config.MENU_WIDTH - 20,                        
+                                input_box_height,                       
+                                placeholder="Room id",
+                                radius=8)
         
         menuAsset = {
             'bg': background_image,
@@ -86,7 +91,8 @@ def load_assets(page):
             'join_room_button' : join_room_button,
             #'quit_button' : quit_button,
             'name_input' : name_input,
-            'language_btn': language_btn
+            'language_btn': language_btn,
+            'room_id_input': room_id_input
         }
         return menuAsset
     

@@ -1,6 +1,5 @@
-import pygame
+import pygame, pygame.scrap
 import config
-import uuid
 config.add_path()
 from GameState import GameState, PlayerState
 from OneTimeCaller import OneTimeCaller
@@ -12,18 +11,21 @@ from db import DB
 pygame.init()
 pygame.font.init()
 
+
 OTC_MENU = OneTimeCaller()
 OTC_CANVA = OneTimeCaller()
 OTC_DB = OneTimeCaller()
 
 screen = pygame.display.set_mode((config.WIDTH, config.HEIGHT))
 pygame.display.set_caption("Drawing Game")
+pygame.scrap.init()
+pygame.scrap.set_mode(pygame.SCRAP_CLIPBOARD)
 
 db = DB()
 game_state = GameState()
 player_state = PlayerState()
 randword = RandomWord(game_state)
-roundManager = RoundManager(game_state, randword, db)
+roundManager = RoundManager(game_state, player_state, randword, db)
 chatSys = ChatSystem(game_state, player_state, db)
 
 clock = pygame.time.Clock()
@@ -42,7 +44,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if game_state.state == config.MENU:
-            menu_event(event, game_state, player_state)
+            menu_event(event, game_state, player_state, db)
         elif game_state.state == config.DRAWING:
             canva_event(event, game_state, player_state, roundManager, chatSys, db)
 

@@ -37,11 +37,8 @@ class ChatUI:
         self.chatTextArea.update(dt)
     
     def handle_event(self, event, game_state, player_state, chatSys):
-        if event.type == pygame.MOUSEBUTTONDOWN:
             adj_e = config.relative_pos(self.rect.x, self.rect.y, event)
             self.chatTextArea.handle_event(adj_e)
-        if event.type == pygame.KEYDOWN:
-            self.chatTextArea.handle_event(event)
             if self.chatTextArea.value:
                 msg = self.chatTextArea.value
                 if player_state.isGuessing:
@@ -54,6 +51,3 @@ class ChatUI:
                     game_state.chatLog.append((player_state.username, msg))
                     self.chatTextArea.text = ''
                     self.chatTextArea.value = ''
-        elif event.type == pygame.KEYUP:
-            self.chatTextArea.handle_event(event)
-                    

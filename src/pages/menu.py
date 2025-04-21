@@ -6,15 +6,16 @@ ui = None
 
 class MenuUI:
     def __init__(self):
-        self.menuAsset = load_assets(config.MENU)
-        self.background = self.menuAsset['bg']
-        self.logo = self.menuAsset['logo']
-        self.create_room_button = self.menuAsset['create_room_button']
-        self.join_room_button = self.menuAsset['join_room_button']
+        menuAsset = load_assets(config.MENU)
+        self.background = menuAsset['bg']
+        self.logo = menuAsset['logo']
+        self.create_room_button = menuAsset['create_room_button']
+        self.join_room_button = menuAsset['join_room_button']
         # quit_button = menuAsset['quit_button']
-        self.menu_background = self.menuAsset['menu_bg']
-        self.name_input = self.menuAsset['name_input']
-        self.language_btn = self.menuAsset['language_btn']
+        self.menu_background = menuAsset['menu_bg']
+        self.name_input = menuAsset['name_input']
+        self.language_btn = menuAsset['language_btn']
+        self.room_id_input = menuAsset['room_id_input']
         
 def init_menu_assets():
     global ui
@@ -36,34 +37,50 @@ def menu_update(screen, game_state, dt):
 
     # draw input area v2
     ui.name_input.draw(screen)
-    ui.language_btn.draw(screen)
+    # ui.language_btn.draw(screen)
+    ui.room_id_input.draw(screen)
 
     # draw v.2
     ui.create_room_button.draw(screen)
     ui.join_room_button.draw(screen)
 
     ui.name_input.update(dt)
-    
+    ui.room_id_input.update(dt)
 
-def menu_event(event, game_state, player_state):
-    ui.language_btn.handle_event(event)
-    ui.name_input.handle_event(event)
-    username = ui.name_input.value
-    
+def SET_player (username, player_state):
     if username == '':
         player_state.username = 'anonymous'
         player_state._id = str(uuid.uuid4())
     else:
         player_state.username = username
         player_state._id = str(uuid.uuid4())
+    
+
+def menu_event(event, game_state, player_state, db):
+    # ui.language_btn.handle_event(event)
+    ui.name_input.handle_event(event)
+    ui.room_id_input.handle_event(event)
+    username = ui.name_input.value
 
     if ui.join_room_button.is_clicked(event):
         # get room id and add player to room game state in db
         # gameState => host 
         # get random _id gameState then pull by _id
-        game_state.state = config.DRAWING
+        SET_player(username, player_state)
+        if ui.room_id_input.value == '':
+            if game_state.join_game(db):
+                game_state.state = config.DRAWING
+            else: return
+        else:
+            rmid = ui.room_id_input.value
+            if game_state.join_game(db, id=rmid):
+                game_state.state = config.DRAWING
+            else: return
+
     if ui.create_room_button.is_clicked(event):
+        SET_player(username, player_state)
         game_state.playerList.append(player_state)
         game_state.rmSetting = True
         game_state.state = config.DRAWING
+        db.insert_to(game_state)  
         

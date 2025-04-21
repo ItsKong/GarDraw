@@ -4,11 +4,11 @@ from bson import ObjectId
 logging.basicConfig(level=logging.ERROR)
 # for db store only python base variable
 
-connection_uri = os.getenv("MONGO_URI", "")
+connection_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 
 class DB:
     def __init__(self):
-        return
+        # return
         try:
             client = MongoClient(connection_uri)
             db = client['Gardraw']
@@ -17,10 +17,10 @@ class DB:
             print("Connected to mongoDB")
             print("Database available: ", client.list_database_names())
         except Exception as e:
-            logging.error("Failed to connected to mongoDB: ", e)
+            logging.error("Failed to connected to mongoDB: ", str(e))
 
     def insert_to(self, obj, retries=3):
-        return
+        # return
         for attempt in range(retries):
             try:
                 obj_dict = obj.to_dict()
@@ -32,10 +32,10 @@ class DB:
                 print("Insert id into obj._id")
                 return
             except Exception as e:
-                logging.error("Failed to insert to mongoDB: ", e)
+                logging.error("Failed to insert to mongoDB: ", str(e))
     
     def update_to(self, obj, retries=3):
-        return
+        # return
         for attempt in range(retries):
             try:
                 update_query = {"_id": obj._id}
@@ -45,10 +45,10 @@ class DB:
                 print("Object update successfuly")
                 return
             except Exception as e:
-                logging.error("Failed to update :", e)
+                logging.error("Failed to update :", str(e))
 
     def delete_to(self, obj, retries=3):
-        return
+        # return
         for attempt in range(retries):
             try:
                 _id = obj._id
@@ -69,17 +69,41 @@ class DB:
 
 
     def sync_from_db(self, obj):
-        return
+        # for player already in the room
+        # return
         try:
-            obj_dict = obj.to_dict()
-            data = self.collection.find_one({"_id": obj._id})
+            data = self.collection.find_one({"_id": ObjectId(obj._id)})
             if data:
-                for key, value in data.item():
+                for key, value in data.items():
                     if hasattr(obj, key):
                         setattr(obj, key, value)
                 print("Object Synchronized!")
         except Exception as e:
-            logging.ERROR("Failed to synchronized:", e)
+            logging.error("Failed to synchronized:", str(e))
+    
+    def pull_from_db(self, obj, id):
+        # for player join random
+        try:
+            data = self.collection.find_one({"_id":  ObjectId(id)})
+            if data:
+                obj._id = ''
+                for key, value in data.items():
+                    if hasattr(obj, key):
+                        setattr(obj, key, value)
+                    print("Object Synchronized!")
+        except Exception as e:
+            logging.error("Failed to synchronized:", str(e))
+
+            
+
+    def get_all_id(self):
+        try:
+            ids = [str(doc["_id"]) for doc in self.collection.find({}, {"_id": 1})]
+            return ids
+        except Exception as e:
+            print("Error fetching IDs:", e)
+            return []
+
 
 
 

@@ -1,9 +1,9 @@
-import config
+import config, random
 
 class GameState:
     def __init__(self): # Default value
         self.state = config.MENU
-        self.is_host = False
+        self.currentHost = ''
         self.tool_mode = config.PEN_MODE
         self.current_color = config.BLACK
         self.brushSize = config.BRUSH_SIZES[0]
@@ -22,6 +22,7 @@ class GameState:
         self.chatLog = [] # chat ui
         self.guessed_correctly = None
         self.currentDrawer = ''
+        self.version = 0
 
     def to_dict(self):
         temp_dict = self.__dict__.copy()
@@ -34,9 +35,30 @@ class GameState:
 
         return temp_dict
     
+    def sync_gameState_local(self, db):
+        # sync with mongoDB game state
+        try:
+            db.sync_from_db(self)
+        except Exception as e:
+            print("Syncing Fail error: ", str(e))
+    
+    def join_game(self, db, id=None):
+        try:
+            if id:
+                db.pull_from_db(self, id)
+            else:
+                lists = db.get_all_id()
+                randID = random.choice(lists)
+                db.pull_from_db(self, randID)
+            return True
+        except Exception as e:
+            print("Joining Fail error:", str(e))
+            return False
+
+    
     def SET_DEFAULT(self):
         self.state = config.MENU
-        self.is_host = False
+        self.currentHost = ''
         self.tool_mode = config.PEN_MODE
         self.current_color = config.BLACK
         self.brushSize = config.BRUSH_SIZES[0]
@@ -61,7 +83,7 @@ class PlayerState:
         self._id = '' # python gen
         self.isGuessing = False
         self.isDrawer = True
-        self.isHost = None
+        self.isHost = True
         self.username = 'anonymous'
         self.avartar = ''
         self.room_id = ''
@@ -77,7 +99,7 @@ class PlayerState:
         self._id = '' # python gen
         self.isGuessing = False
         self.isDrawer = True
-        self.isHost = None
+        self.isHost = True
         self.username = 'anonymous'
         self.avartar = ''
         self.room_id = ''
@@ -86,6 +108,7 @@ class PlayerState:
         self.message = ''
     
     def sync_player_local(self, obj):
+        # sync with local game state
         try:
             for p in obj.playerList:
                 if p._id == self._id:

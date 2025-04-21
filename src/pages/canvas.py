@@ -114,10 +114,13 @@ def canva_event(event, game_state, player_state, roundManager, chatSys, db):
         ui.rmSetting.handle_event(event, game_state, player_state, db)
         return
     elif not roundManager.round_active and not game_state.rmSetting: # start round
-        print(game_state.timer)
-        roundManager.start_round()
-        player_state.sync_player_local(game_state)
-        return
+        if player_state.isHost:    
+            print(game_state.timer)
+            roundManager.start_round()
+            player_state.sync_player_local(game_state)
+            return
+        else:
+            return
     ui.chat_ui.handle_event(event, game_state, player_state, chatSys)
     
     if player_state.isDrawer:

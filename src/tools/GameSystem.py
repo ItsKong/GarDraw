@@ -3,25 +3,30 @@ import random, pygame, config
 
 
 class PlayerManager:
-    def __init__(self, db):
-        self.db = db
-    
-    def join_room(self, obj, _id):
-        # get list _id => rand.choice => join
-        # condition
-        # if player in room same name != join
-        # if [] != join
-        # when not join => message "There are no avalible room"
-        obj_dict = obj.to_dict()
-        id_list = self.db.find({}, {'_id', 1})
-        if id_list != None:
-            # self.db.s
-            pass
-        else:
-            print("There are no avalible room")
+    def __init__(self, game_state):
+        self.game_state = game_state  # access shared playerList
 
-    def left_room(self, obj, _id):
-        pass
+    def add_player(self, player):
+        self.game_state.playerList.append(player)
+
+    def remove_player(self, player_id):
+        self.game_state.playerList = [
+            p for p in self.game_state.playerList if p._id != player_id
+        ]
+        self.reassign_host()
+
+    def reassign_host(self):
+        # if host leaves, assign new host
+        if not any(p.isHost for p in self.game_state.playerList):
+            if self.game_state.playerList:
+                self.game_state.playerList[0].isHost = True
+
+    def get_player(self, player_id):
+        for p in self.game_state.playerList:
+            if p._id == player_id:
+                return p
+        return None
+
         
 
 class RandomWord:
@@ -42,8 +47,9 @@ class RoundManager:
     # timer each round and choose new player, word next round
     # endround when someone guess the right word or timer runnint out
 
-    def __init__(self, game_state, randword, db):
+    def __init__(self, game_state, player_state,randword, db):
         self.game_state = game_state
+        self.player_state = player_state
         self.randword = randword
         self.db = db
         self.words =  [] #word or ["apple", "car", "pizza", "bicycle"]
@@ -72,13 +78,14 @@ class RoundManager:
         # rotate drawer
         for p in self.game_state.playerList:
             if p._id in self.areadyDraw:
-                print("EIEI")
                 p.isGuessing = True
                 p.isDrawer = False
             else:
                 print('hi', self.game_state.currentDrawer)
                 print(f"{p.username} is drawer")
-        self.db.update_to(self.game_state)
+        if self.player_state.isHost:
+            self.game_state.version += 1
+            self.db.update_to(self.game_state)
 
     def update(self):
         # print(self.game_state.timer)
@@ -124,7 +131,6 @@ class ChatSystem:
                 self.db.update_to(self.game_state)
                 return f"{player_name} guessed the word correctly!"
         else:
-            print('fuck you')
             return ''
 
     def award_points(self, player_name):

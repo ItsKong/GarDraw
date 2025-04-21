@@ -8,18 +8,19 @@ def add_path():
 
 
 def relative_pos(x, y, e):
+    if not hasattr(e, 'pos'):
+        return e  # Return original event if it has no position (e.g., KEYDOWN)
+
     # Calculate position relative to surface
     rel_x = e.pos[0] - x
     rel_y = e.pos[1] - y
 
-    # Create new adjusted event
-    adjusted_event = pygame.event.Event(
-        e.type,
-        {
-            'pos': (rel_x, rel_y),
-            'button': getattr(e, 'button', 0)
-        }
-    )
+    # Copy original event attributes
+    event_dict = e.dict.copy()
+    event_dict['pos'] = (rel_x, rel_y)
+
+    # Create new adjusted event with all original data
+    adjusted_event = pygame.event.Event(e.type, event_dict)
     return adjusted_event
 
 FPS = 144
