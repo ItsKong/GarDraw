@@ -1,12 +1,27 @@
-import sys, os
+import sys, os, pygame
 # from screeninfo import get_monitors
-def add_tools():
-    other_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'tools'))
-    sys.path.append(other_folder_path)
+def add_path():
+    tools_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'tools'))
+    pages_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pages'))
+    sys.path.append(tools_folder_path)
+    sys.path.append(pages_folder_path)
 
-def add_pages():
-    other_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pages'))
-    sys.path.append(other_folder_path)
+
+def relative_pos(x, y, e):
+    if not hasattr(e, 'pos'):
+        return e  # Return original event if it has no position (e.g., KEYDOWN)
+
+    # Calculate position relative to surface
+    rel_x = e.pos[0] - x
+    rel_y = e.pos[1] - y
+
+    # Copy original event attributes
+    event_dict = e.dict.copy()
+    event_dict['pos'] = (rel_x, rel_y)
+
+    # Create new adjusted event with all original data
+    adjusted_event = pygame.event.Event(e.type, event_dict)
+    return adjusted_event
 
 FPS = 144
 
@@ -14,7 +29,6 @@ FPS = 144
 WIDTH, HEIGHT = 1400, 800
 # WIDTH, HEIGHT = 1600, 900
 CANVA_WIDTH, CANVA_HEIGHT = 800, 600
-# CANVA_WIDTH, CANVA_HEIGHT = WIDTH, HEIGHT
 CANVA_TOPLEFT = ((WIDTH - CANVA_WIDTH) // 2, (HEIGHT - CANVA_HEIGHT) // 2) # 300
 # CANVA_TOPLEFT = (0,0)
 MENU_WIDTH, MENU_HEIGHT = 400, 306
@@ -49,12 +63,10 @@ TEST = (220, 220, 22, 0)
 # Game states
 MENU = "menu"
 DRAWING = "drawing"
-WORD_CHOOSING = "word_choosing"
 GUESSING = "guessing"
 WAITING = 'waiting'
 
 # Drawing mode
-DRAW_MODE = "draw"
 PEN_MODE = "pen"
 ERASE_MODE = "erase"
 FILL_MODE = "fill"

@@ -1,15 +1,15 @@
 import pygame
 import config
-config.add_tools()
-from Button import Button
+from Button import Button, BrushButton, TextButton, IconButton, ColorButton
 from TextInput import TextInput
 from Dropdown import Dropdown
 from ChatUI import ChatUI
-from TopBar import TopBarUI
+from TopBarUI import TopBarUI
 from DashboardUI import DashboardUI
+from RmSettingUI import RmSettingUI
 
 def load_assets(page):
-    if page == 'menu':
+    if page == config.MENU:
         # load background 
         try:
             background_image = pygame.image.load("./picture/background.png")
@@ -31,22 +31,20 @@ def load_assets(page):
 
         # menu componet
         menu_background = pygame.Surface((config.MENU_WIDTH, config.MENU_HEIGHT), pygame.SRCALPHA)
-        # avatar select
-        # avatarSelect = 
 
         # button v.2
-        join_room_button = Button(config.WIDTH*0.3649, 
-                                    config.HEIGHT*0.43, 
+        join_room_button = TextButton(config.MENU_TOPLEFT[0] + 10, 
+                                    config.MENU_TOPLEFT[1] + 170, 
                                     config.MENU_WIDTH - 20, 
                                     50, 
-                                    "PLAY", config.GREEN,
+                                    text="JOIN ROOM", color=config.GREEN,
                                     radius=8,
                                     hoverColor=config.SEL_GREEN)
-        create_room_button = Button(config.WIDTH*0.3649, 
-                                  config.HEIGHT*0.5, 
+        create_room_button = TextButton(config.MENU_TOPLEFT[0] + 10, 
+                                    config.MENU_TOPLEFT[1] + 230, 
                                   config.MENU_WIDTH - 20, 
                                   40, 
-                                  "CREATE PRIVATE ROOM", config.ORANGE,
+                                  text="CREATE PRIVATE ROOM", color=config.ORANGE,
                                   radius=8,
                                   hoverColor=config.SEL_ORANGE)
         # quit_button = Button((config.WIDTH - button_width) // 2, 300, 
@@ -57,25 +55,31 @@ def load_assets(page):
                                 config.HEIGHT*0.22,
                                 config.MENU_WIDTH*0.2, 
                                 40, 
-                                text='English',
                                 text_color=config.RED,
                                 fontSize=25,
                                 border_radius=-1,
+                                radius=8,
                                 hoverColor=config.GRAY,
                                 color=config.WHITE,
                                 choices=[
-                                    'Thai',
+                                    'English',
+                                    'Thai'
                                 ])
 
         # Name input box position updated to be above the first button
         input_box_width, input_box_height = 250, 40
-        name_input = TextInput(config.WIDTH*0.3649,  
-                                config.HEIGHT*0.22,           
-                                config.MENU_WIDTH*0.6,                        
-                                input_box_height,                       
+        name_input = TextInput(config.MENU_TOPLEFT[0] + 10,  
+                                config.MENU_TOPLEFT[1] + 20,           
+                                config.MENU_WIDTH - 20,                        
+                                input_box_height + 15,                       
                                 placeholder="Enter your name",
                                 radius=8)
-        
+        room_id_input = TextInput(config.MENU_TOPLEFT[0] + 10,  
+                                (config.MENU_TOPLEFT[1] + 100) ,           
+                                config.MENU_WIDTH - 20,                        
+                                input_box_height,                       
+                                placeholder="Room id",
+                                radius=8)
         
         menuAsset = {
             'bg': background_image,
@@ -85,7 +89,8 @@ def load_assets(page):
             'join_room_button' : join_room_button,
             #'quit_button' : quit_button,
             'name_input' : name_input,
-            'language_btn': language_btn
+            'language_btn': language_btn,
+            'room_id_input': room_id_input
         }
         return menuAsset
     
@@ -93,8 +98,8 @@ def load_assets(page):
     # =========================================================================================================
     # ====================================  SECTION CANVA =====================================================
     # =========================================================================================================
-    
-    if page == 'canvas':
+    # menu page butt, tool bar, topbar, chat
+    if page == config.DRAWING:
         # Load tool icons
         try:
             eraser_icon = pygame.image.load("./picture/eraser.png")
@@ -128,11 +133,12 @@ def load_assets(page):
 
         # UI element =>
         # surface 
-        topBar = pygame.Rect((config.CANVA_TOPLEFT[0] - 220, 30,config.CANVA_WIDTH + 500, config.TOOLBAR_HEIGHT))
-        chatSurface = pygame.Rect((config.CANVA_TOPLEFT[0]*3 + 205, config.CANVA_TOPLEFT[1], 275, config.CANVA_HEIGHT))
+        topBar = pygame.Rect((config.CANVA_TOPLEFT[0] - 220, config.CANVA_TOPLEFT[1] - 80,
+                              config.CANVA_WIDTH + 500, config.TOOLBAR_HEIGHT))
+        chatSurface = pygame.Rect((config.CANVA_TOPLEFT[0]*3 + 210, config.CANVA_TOPLEFT[1], 275, config.CANVA_HEIGHT))
         toolbar_bg = pygame.Surface((config.CANVA_WIDTH, config.TOOLBAR_HEIGHT), pygame.SRCALPHA)
-        toolbar_bg.fill((0, 0, 0, 200))#(0, 0, 0, 128))
-        dashboardSurface = pygame.Rect((config.CANVA_TOPLEFT[0] - 220,
+        toolbar_bg.fill((0, 0, 0, 0)) #(0, 0, 0, 128))
+        dashboardSurface = pygame.Rect((config.CANVA_TOPLEFT[0] - 225,
                                         config.CANVA_TOPLEFT[1],
                                         215,
                                         config.CANVA_HEIGHT))
@@ -151,33 +157,35 @@ def load_assets(page):
                                   dashboardSurface.y,
                                   dashboardSurface.width,
                                   dashboardSurface.height)
-
+        rmSetting = RmSettingUI(config.CANVA_TOPLEFT[0], config.CANVA_TOPLEFT[1],
+                                config.CANVA_WIDTH, config.CANVA_HEIGHT)
+        
         # button
         tool_btn_size = 40
-        back_button = Button(10, config.HEIGHT - 45, 100, 30 , 'Back', config.RED, border_radius=0)
-        pen_button = Button(config.CANVA_WIDTH, 
+        back_button = TextButton(10, config.HEIGHT - 45, 100, 30 , text='Back', color=config.RED, border_radius=0)
+        pen_button = IconButton(config.CANVA_WIDTH, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
                                 tool_btn_size, tool_btn_size , 
-                                'Pen', 
-                                config.BLACK, 
+                                text='Pen', 
+                                color=config.BLACK, 
                                 border_width=3,
                                 radius=0, 
                                 icon=pen_icon,
                                 mode=config.PEN_MODE)
-        bucket_button = Button(config.CANVA_WIDTH + 40, 
+        bucket_button = IconButton(config.CANVA_WIDTH + 40, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
                                 tool_btn_size, tool_btn_size , 
-                                'Bucked', 
-                                config.BLACK, 
+                                text='Bucked', 
+                                color=config.BLACK, 
                                 border_width=3,
                                 radius=0, 
                                 icon=bucket_icon,
                                 mode=config.FILL_MODE)
-        eraser_button = Button(config.CANVA_WIDTH + 80, 
+        eraser_button = IconButton(config.CANVA_WIDTH + 80, 
                                 ((config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT) // 2) - 5 , 
                                 tool_btn_size, tool_btn_size , 
-                                'eraser', 
-                                config.BLACK, 
+                                text='eraser', 
+                                color=config.BLACK, 
                                 border_width=3,
                                 radius=0, 
                                 icon=eraser_icon,
@@ -206,8 +214,8 @@ def load_assets(page):
         # Initialize color picker buttons
         for i, color_data in enumerate(color_palette):
             x_pos = color_palette_x + i * (color_button_size + color_palette_spacing)
-            color_buttons.append(Button(x_pos, color_palette_y, color_button_size, color_button_size, 
-                                color_data['name'], 
+            color_buttons.append(ColorButton(x_pos, color_palette_y, color_button_size, color_button_size, 
+                                text=color_data['name'], 
                                 color= color_data["color"],
                                 mode=color_data['color'],
                                 border_width=3))
@@ -218,9 +226,9 @@ def load_assets(page):
         # Brush butt
         for i, size in enumerate(config.BRUSH_SIZES):
             x_pos = brush_pos_x + i * (brush_button_size + brush_button_spacing)
-            brush_buttons.append(Button(x_pos, 
+            brush_buttons.append(BrushButton(x_pos, 
                                         (config.HEIGHT + config.CANVA_HEIGHT + config.TOOLBAR_HEIGHT - 20)//2,
-                                        brush_button_size, brush_button_size, '', config.BLACK,
+                                        brush_button_size, brush_button_size, color=config.BLACK,
                                         brushSize=size, mode=size))
         
         canvasAsset = {
@@ -236,8 +244,7 @@ def load_assets(page):
             'chat_ui': chat_ui,
             'topbarUI': topbarUI,
             'dashboardSurface': dashboardSurface,
-            'dashboardUI': dashboardUI
+            'dashboardUI': dashboardUI,
+            'rmSetting': rmSetting
         }
         return canvasAsset
-
-

@@ -1,10 +1,8 @@
 import pygame, numpy
 import config
-config.add_tools
 from assets import load_assets
 from PaintTool import PenTool, FillTool
 from OneTimeCaller import OneTimeCaller
-from ChatUI import ChatUI
 OTC = OneTimeCaller()
 
 canvas = pygame.Surface((config.CANVA_WIDTH, config.CANVA_HEIGHT))
@@ -13,7 +11,7 @@ ui = None
 
 class CanvaUI:
     def __init__(self):
-        canvasAssets = load_assets('canvas')
+        canvasAssets = load_assets(config.DRAWING)
         self.toolbar_bg = canvasAssets['toolbar_bg']
         self.back_button = canvasAssets['back_button']
         self.pen_button = canvasAssets['pen_button']
@@ -28,6 +26,7 @@ class CanvaUI:
         self.topbarUI = canvasAssets['topbarUI']
         self.dashboardSurface = canvasAssets['dashboardSurface']
         self.dashboardUI = canvasAssets['dashboardUI']
+        self.rmSetting = canvasAssets['rmSetting']
 
 pen_tool = PenTool(canvas)
 fill_tool = FillTool(canvas)
@@ -45,20 +44,20 @@ def drawing(pen_tool, game_state, event):
     pen_tool.use()
     pen_tool.last_pos = pen_tool.current_pos  # Update for the next motion
 
-def canva_update(screen, game_state, dt):
+def canva_update(screen, game_state, dt, player_state):
     OTC.call(lambda: setattr(game_state, 'canva', canvas)) # set canva in game_state once
 
     screen.blit(game_state.background, (0, 0))
-    # pygame.draw.rect(screen, config.BLACK, 
-    #                  (config.CANVA_TOPLEFT[0]-5, config.CANVA_TOPLEFT[1]-20, 
-    #                   config.CANVA_WIDTH+10, config.CANVA_HEIGHT), border_radius=8)
+    pygame.draw.rect(screen, config.BLACK, 
+                     (config.CANVA_TOPLEFT[0]-5, config.CANVA_TOPLEFT[1]-20, 
+                      config.CANVA_WIDTH+10, config.CANVA_HEIGHT+30), border_radius=8)
     screen.blit(canvas, config.CANVA_TOPLEFT)
     screen.blit(ui.toolbar_bg, (config.CANVA_TOPLEFT[0], 
                              config.CANVA_TOPLEFT[1] + config.CANVA_HEIGHT + 10))
     pygame.draw.rect(screen, config.WHITE, ui.topBarSurface, border_radius=8)
     pygame.draw.rect(screen, config.WHITE, ui.chatSurface, border_radius=8)
-    # pygame.draw.rect(screen, config.BLACK, ui.dashboardSurface)
     ui.topbarUI.display(screen, game_state)
+    ui.topbarUI.update(player_state)
     ui.dashboardUI.display(screen)
     
 
@@ -82,7 +81,7 @@ def canva_update(screen, game_state, dt):
     ui.pen_button.draw(screen)
     ui.bucket_button.draw(screen)
     ui.eraser_button.draw(screen)
-    ui.chat_ui.draw(screen)
+    ui.chat_ui.draw(screen, game_state)
     ui.chat_ui.update(dt)
 
 
@@ -95,53 +94,71 @@ def canva_update(screen, game_state, dt):
     for i, btn in enumerate(ui.brush_buttons):
         btn.button_type = 'brush'
         btn.draw(screen)
+    
+    if game_state.rmSetting:
+        ui.rmSetting.display(screen, dt)
+        return
 
 
-def canva_event(event, game_state, player_state):
-     # button event handle
-    # ui.chatTextArea.handle_event(event)
-    # ui.chatTextArea.update(pygame.time.Clock().tick(60))
-    ui.chat_ui.handle_event(event, player_state)
-    ui.dashboardUI.handle_event(event, game_state, player_state)
 
+def canva_event(event, game_state, player_state, roundManager, chatSys, db):
     if ui.back_button.is_clicked(event):
-        # game_state.state = config.MENU
+        roundManager.SET_DEFAULT()
+        player_state.SET_DEFAULT()
         game_state.SET_DEFAULT()
-    if ui.pen_button.is_clicked(event):
-        game_state.tool_mode = config.PEN_MODE
-    if ui.bucket_button.is_clicked(event):
-        game_state.tool_mode = config.FILL_MODE
-    if ui.eraser_button.is_clicked(event):
-        game_state.tool_mode = config.ERASE_MODE
-    
-    for btn in ui.color_buttons:
-        if btn.is_clicked(event):
-            game_state.tool_mode = config.PEN_MODE
-            game_state.current_color = btn.color
-    
-    for btn in ui.brush_buttons:
-        if btn.is_clicked(event):
-            game_state.brushSize = btn.brushSize
-
-    # mouse draw handle
-    if event.type == pygame.MOUSEBUTTONDOWN and ui.canvas_rect.collidepoint(event.pos):
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        canvas_x = mouse_x - config.CANVA_TOPLEFT[0]
-        canvas_y = mouse_y - config.CANVA_TOPLEFT[1]
-        if game_state.tool_mode == config.FILL_MODE: # fill mode
-            if fill_tool.is_above_ui(event):
-                fill_tool.current_color(game_state)
-                fill_tool.span_fill((canvas_x, canvas_y))
+        ui.rmSetting.set_text_default()
+        db.delete_to(game_state)
+        return
+    ui.dashboardUI.handle_event(event, game_state, player_state)
+    if game_state.rmSetting: # room setting
+        ui.rmSetting.handle_event(event, game_state, player_state, db)
+        return
+    elif not roundManager.round_active and not game_state.rmSetting: # start round
+        if player_state.isHost:    
+            print(game_state.timer)
+            roundManager.start_round()
+            player_state.sync_player_local(game_state)
+            return
         else:
-            pen_tool.drawing = True
-            pen_tool.last_pos = (canvas_x, canvas_y)
-            drawing(pen_tool, game_state, event)
+            return
+    ui.chat_ui.handle_event(event, game_state, player_state, chatSys)
+    
+    if player_state.isDrawer:
+        if ui.pen_button.is_clicked(event):
+            game_state.tool_mode = config.PEN_MODE
+        if ui.bucket_button.is_clicked(event):
+            game_state.tool_mode = config.FILL_MODE
+        if ui.eraser_button.is_clicked(event):
+            game_state.tool_mode = config.ERASE_MODE
+        
+        for btn in ui.color_buttons:
+            if btn.is_clicked(event):
+                game_state.tool_mode = config.PEN_MODE
+                game_state.current_color = btn.color
+        
+        for btn in ui.brush_buttons:
+            if btn.is_clicked(event):
+                game_state.brushSize = btn.brushSize
 
-    elif event.type == pygame.MOUSEBUTTONUP:
-        pen_tool.drawing = False
-        pen_tool.last_pos = None
+        # mouse draw handle
+        if event.type == pygame.MOUSEBUTTONDOWN and ui.canvas_rect.collidepoint(event.pos):
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            canvas_x = mouse_x - config.CANVA_TOPLEFT[0]
+            canvas_y = mouse_y - config.CANVA_TOPLEFT[1]
+            if game_state.tool_mode == config.FILL_MODE: # fill mode
+                if fill_tool.is_above_ui(event):
+                    fill_tool.current_color(game_state)
+                    fill_tool.span_fill((canvas_x, canvas_y))
+            else:
+                pen_tool.drawing = True
+                pen_tool.last_pos = (canvas_x, canvas_y)
+                drawing(pen_tool, game_state, event)
 
-    elif (event.type == pygame.MOUSEMOTION and pen_tool.drawing and pen_tool.last_pos 
-                and game_state.tool_mode != config.FILL_MODE):
-        if pen_tool.is_above_ui(event):
-            drawing(pen_tool, game_state, event)
+        elif event.type == pygame.MOUSEBUTTONUP:
+            pen_tool.drawing = False
+            pen_tool.last_pos = None
+
+        elif (event.type == pygame.MOUSEMOTION and pen_tool.drawing and pen_tool.last_pos 
+                    and game_state.tool_mode != config.FILL_MODE):
+            if pen_tool.is_above_ui(event):
+                drawing(pen_tool, game_state, event)
