@@ -1,2 +1,0 @@
-สร้าง venv + activate แล้วลง library ที่ใส่ไว้ใน requirement
-pip install -r <path to requirement.txt>
