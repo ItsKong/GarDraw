@@ -78,6 +78,7 @@ def menu_event(event, game_state, player_state, db):
 
     if ui.create_room_button.is_clicked(event):
         SET_player(username, player_state)
+        player_state.isHost = True
         game_state.playerList.append(player_state)
         game_state.currentDrawer = player_state._id # shoulde be _id
         game_state.currentHost = player_state._id

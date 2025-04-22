@@ -107,7 +107,8 @@ def canva_event(event, game_state, player_state, roundManager, chatSys, db):
         player_state.SET_DEFAULT()
         game_state.SET_DEFAULT()
         ui.rmSetting.set_text_default()
-        db.delete_to(game_state)
+        if player_state.isHost:
+            db.delete_to(game_state)
         return
     ui.dashboardUI.handle_event(event, game_state, player_state)
     if game_state.rmSetting: # room setting

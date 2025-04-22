@@ -58,9 +58,9 @@ class RmSettingUI:
             game_state.timer = int(self.drawTimeBtn.value)
         if self.maxRndBtn.value.isdigit():
             game_state.maxRound = int(self.maxRndBtn.value)
-
-        if self.start.is_clicked(adj_e):   
-            game_state.rmSetting = False 
+        if player_state.isHost:
+            if self.start.is_clicked(adj_e):   
+                game_state.rmSetting = False 
         if self.invite.is_clicked(adj_e):
             txt = str(game_state._id)
             pygame.scrap.put(pygame.SCRAP_TEXT, txt.encode('utf-8'))

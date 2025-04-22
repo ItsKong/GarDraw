@@ -39,6 +39,7 @@ class GameState:
         # sync with mongoDB game state
         try:
             db.sync_from_db(self)
+            self.playerList = [PlayerState(**p) for p in self.playerList] 
         except Exception as e:
             print("Syncing Fail error: ", str(e))
     
@@ -55,7 +56,7 @@ class GameState:
             print(type(self.playerList[0]))
             # print(type(self.playerList[0]))
             self.playerList.append(obj)
-            db.update(self)
+            db.update_to(self)
             return True
         except Exception as e:
             print("Joining Fail error:", str(e))
@@ -83,6 +84,7 @@ class GameState:
         self.chatLog = [] # chat ui
         self.guessed_correctly = None
         self.currentDrawer = ''
+        self.version = 0
 
 class PlayerState:
     def __init__(self, **kwargs):
