@@ -2,3 +2,6 @@ __pycache__
 gardraw15.py
 .myvenv
 .env
+readgufirst.txt
+user_data.json
+words.json
