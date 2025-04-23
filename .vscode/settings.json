@@ -1,0 +1,8 @@
+{
+    "python.analysis.extraPaths": [
+        "./",
+        "./src/pages",
+        "./src/modules",
+        "./src/network"
+    ]
+}
