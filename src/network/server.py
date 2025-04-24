@@ -24,6 +24,8 @@ class ServerManager:
     async def send_gameState(self, gameState: GameState, websocket: WebSocket):
         await websocket.send_text(json.dumps(gameState.to_dict()))
     
+    async def 
+    
     async def broadcast(self, gameState: GameState):
         # updata game state
         for connection in self.active_connections:
@@ -34,22 +36,22 @@ game = GameState()
 
 print(type(game))
 print(game.to_dict())
-@app.websocket('/ws/{client_id}')
-async def websocket_endpoint(websocket: WebSocket, client_id: int):
+@app.websocket('/ws')
+async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
 
-    username = await websocket.receive_text()
-    print(f"{username} joined!")
+    player = await websocket.receive_text()
+    print(f"{player} joined!")
     
     await manager.send_gameState(game, websocket)
     try:
         while True:
             data = await websocket.receive_json()
-            print(f"Clinet {username}, GET: {data}")
+            # print(f"Clinet {username}, GET: {data}")
             await manager.broadcast(game)
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{client_id} has left!")
+        await manager.broadcast(f"Client has left!")
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host="0.0.0.0", port=8000)

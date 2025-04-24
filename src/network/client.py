@@ -5,13 +5,20 @@ import json, sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import config
 config.add_path()
-from GameState import GameState
+from GameState import GameState, PlayerState
+
+class ClientManager():
+    def __init__(self):
+        pass
+
+player = PlayerState()
+game = GameState()
 
 async def connect(username, ip="localhost"):
-    uri = f"ws://{ip}:8000/ws/123"
+    uri = f"ws://{ip}:8000/ws"
     async with websockets.connect(uri) as websocket:
         # Send join event
-        await websocket.send(username)
+        await websocket.send(json.dumps(player.to_dict()))
 
         while True:
             state = await websocket.recv()
