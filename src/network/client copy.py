@@ -12,7 +12,6 @@ class ClientManager:
         self.action = 'create_room'
         self.player_state = player_state
         self.game = None
-        self.custom = ''
         # self.player_state.isHost = False
         # self.player_state._id = str(uuid.uuid4())
     
@@ -29,34 +28,17 @@ class ClientManager:
                 'player': self.player_state.to_dict(),
                 'game': self.game.to_dict()
             }
-        elif self.action == 'join_room':
-            self.player_state.room_id = self.custom
-            parsed = {
-                'action': self.get_action(),
-                'player': self.player_state.to_dict(),
-            }
-        elif self.action == 'update':
-            parsed = {
-                'action': self.get_action(),
-                'player': self.player_state.to_dict(),
-            }
-        elif self.action == 'drawPos':
-            parsed = {
-                'action': self.get_action(),
-                'game': self.game
-            }
         else:
             parsed = {
                 'action': self.get_action(),
                 'player': self.player_state.to_dict(),
             }
-        # print(parsed)
+        print(parsed)
         return parsed
     
-    def set_action(self, action: str, custom: str = None):
+    def set_action(self, action: str):
         """Call this when player does something."""
         self.action = action
-        self.custom = custom
 
     def has_action(self) -> bool:
         """Check if there is any action to send."""
@@ -72,7 +54,6 @@ manager = ClientManager()
 
 async def connect(player: PlayerState, ip="localhost"):
     uri = f"ws://{ip}:8000/ws"
-    print("heeeef")
     manager.SET_PLAYER(player)
     async with websockets.connect(uri) as websocket:
         print(await websocket.recv())
@@ -84,10 +65,10 @@ async def connect(player: PlayerState, ip="localhost"):
         # Main sending loop
         while True:
             if manager.has_action():  # If user did something
-                # print("Client Sent: ", manager.player_state)
+                print("Client Sent: ", manager.player_state)
                 await websocket.send(json.dumps(manager.to_parsed()))
             
-            await asyncio.sleep(0.01)  # Very fast loop
+            await asyncio.sleep(1)  # Very fast loop
 
 async def listen_server(websocket):
     while True:
@@ -96,13 +77,6 @@ async def listen_server(websocket):
             game_data = json.loads(state)
             print("Client Get:", game_data)
             manager.game.to_obj(game_data['game_state'])
-            if not manager.player_state.isHost:
-                if manager.game.currentDrawer == manager.player_state._id:
-                    manager.player_state.isDrawer = True
-                    manager.player_state.isGuessing = False
-                else:
-                    manager.player_state.isDrawer = False
-                    manager.player_state.isGuessing = True
         except Exception as e:
             print("Listen error:", str(e))
             break

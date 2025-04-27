@@ -3,8 +3,10 @@ import sys, os, pygame
 def add_path():
     tools_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'modules'))
     pages_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pages'))
+    network_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'network'))
     sys.path.append(tools_folder_path)
     sys.path.append(pages_folder_path)
+    sys.path.append(network_folder_path)
 
 
 def relative_pos(x, y, e):

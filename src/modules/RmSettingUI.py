@@ -60,6 +60,7 @@ class RmSettingUI:
             game_state.maxRound = int(self.maxRndBtn.value)
         if player_state.isHost:
             if self.start.is_clicked(adj_e):   
+                player_state.isDrawer = True
                 game_state.rmSetting = False 
         if self.invite.is_clicked(adj_e):
             txt = str(game_state._id)
