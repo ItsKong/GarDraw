@@ -1,8 +1,9 @@
-import pygame, numpy
+import pygame, numpy, time
 import config
 from assets import load_assets
 from PaintTool import PenTool, FillTool
 from OneTimeCaller import OneTimeCaller
+from shared_myobj import manager
 OTC = OneTimeCaller()
 
 canvas = pygame.Surface((config.CANVA_WIDTH, config.CANVA_HEIGHT))
@@ -43,6 +44,11 @@ def drawing(pen_tool, game_state, event):
     pen_tool.current_pos = relative_mouse_pos
     pen_tool.use()
     pen_tool.last_pos = pen_tool.current_pos  # Update for the next motion
+
+def send_draw_position(event, game_sate):  # pos, not event
+    relative_mouse_pos = tuple(numpy.subtract(event.pos, config.CANVA_TOPLEFT))
+    game_sate.drawPos = str(relative_mouse_pos)
+    manager.set_action('drawPos', custom=relative_mouse_pos)
 
 def canva_update(screen, game_state, dt, player_state):
     OTC.call(lambda: setattr(game_state, 'canva', canvas)) # set canva in game_state once
@@ -100,14 +106,27 @@ def canva_update(screen, game_state, dt, player_state):
         return
 
 
-
-def canva_event(event, game_state, player_state, roundManager, chatSys, db):
+last_send_time = 0
+def canva_event(event, game_state, player_state, roundManager, chatSys, db, dt):
+    global last_send_time
+    if not player_state.isHost:
+        if game_state.currentDrawer == player_state._id:
+            player_state.isDrawer = True
+            player_state.isGuessing = False
+        else:
+            player_state.isDrawer = False
+            player_state.isGuessing = True
+    # for player in game_state.playerList:
+    #     if player_state._id == player._id:
+    #         player_state = player
+    
     if ui.back_button.is_clicked(event):
         roundManager.SET_DEFAULT()
         player_state.SET_DEFAULT()
         game_state.SET_DEFAULT()
         ui.rmSetting.set_text_default()
-        db.delete_to(game_state)
+        if player_state.isHost:
+            db.delete_to(game_state)
         return
     ui.dashboardUI.handle_event(event, game_state, player_state)
     if game_state.rmSetting: # room setting
@@ -115,9 +134,10 @@ def canva_event(event, game_state, player_state, roundManager, chatSys, db):
         return
     elif not roundManager.round_active and not game_state.rmSetting: # start round
         if player_state.isHost:    
-            print(game_state.timer)
+            # print(game_state.timer)
             roundManager.start_round()
-            player_state.sync_player_local(game_state)
+            # player_state.sync_player_local(game_state)
+            manager.set_action('update')
             return
         else:
             return
@@ -142,6 +162,7 @@ def canva_event(event, game_state, player_state, roundManager, chatSys, db):
 
         # mouse draw handle
         if event.type == pygame.MOUSEBUTTONDOWN and ui.canvas_rect.collidepoint(event.pos):
+            now = time.time()
             mouse_x, mouse_y = pygame.mouse.get_pos()
             canvas_x = mouse_x - config.CANVA_TOPLEFT[0]
             canvas_y = mouse_y - config.CANVA_TOPLEFT[1]
@@ -153,6 +174,9 @@ def canva_event(event, game_state, player_state, roundManager, chatSys, db):
                 pen_tool.drawing = True
                 pen_tool.last_pos = (canvas_x, canvas_y)
                 drawing(pen_tool, game_state, event)
+                if now - last_send_time > 0.05:
+                    send_draw_position(event, game_state)  # event.pos, correct now
+                    last_send_time = now
 
         elif event.type == pygame.MOUSEBUTTONUP:
             pen_tool.drawing = False

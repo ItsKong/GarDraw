@@ -1,38 +1,22 @@
 # random word, timer, chat interactive, round count
 import random, pygame, config
 
+class RoundManager:
+    # manage time round and word handle game progression 
+    # timer each round and choose new player, word next round
+    # endround when someone guess the right word or timer runnint out
 
-class PlayerManager:
-    def __init__(self, game_state):
-        self.game_state = game_state  # access shared playerList
-
-    def add_player(self, player):
-        self.game_state.playerList.append(player)
-
-    def remove_player(self, player_id):
-        self.game_state.playerList = [
-            p for p in self.game_state.playerList if p._id != player_id
-        ]
-        self.reassign_host()
-
-    def reassign_host(self):
-        # if host leaves, assign new host
-        if not any(p.isHost for p in self.game_state.playerList):
-            if self.game_state.playerList:
-                self.game_state.playerList[0].isHost = True
-
-    def get_player(self, player_id):
-        for p in self.game_state.playerList:
-            if p._id == player_id:
-                return p
-        return None
-
-        
-
-class RandomWord:
-    def __init__(self, game_state):
+    def __init__(self, game_state, player_state, db):
         self.game_state = game_state
-
+        self.player_state = player_state
+        self.randword = []
+        self.db = db
+        self.words =  [] #word or ["apple", "car", "pizza", "bicycle"]
+        self.last_tick = pygame.time.get_ticks()
+        self.round_active = False
+        self.areadyDraw = []
+        self.manager = None
+    
     def choose_word(self):
         defaultWord = ["apple", "banana", "car", "dog", "elephant", "flower", "guitar", "house", "island", 
                        "jungle","kite", "lion", "mountain", "notebook", "ocean", "pencil", "queen", "robot", 
@@ -41,21 +25,10 @@ class RandomWord:
             # return random.choice(custom_wrod)
             pass
         return random.choice(defaultWord)
-    
-class RoundManager:
-    # manage time round and word handle game progression 
-    # timer each round and choose new player, word next round
-    # endround when someone guess the right word or timer runnint out
 
-    def __init__(self, game_state, player_state,randword, db):
-        self.game_state = game_state
-        self.player_state = player_state
-        self.randword = randword
-        self.db = db
-        self.words =  [] #word or ["apple", "car", "pizza", "bicycle"]
-        self.last_tick = pygame.time.get_ticks()
-        self.round_active = False
-        self.areadyDraw = []
+
+    def get_manager(self, manager):
+        self.manager = manager
     
     def SET_DEFAULT(self):
         self.words =  [] #word or ["apple", "car", "pizza", "bicycle"]
@@ -66,26 +39,45 @@ class RoundManager:
     
     def start_round(self):
         # set game state
-        self.words = self.randword.choose_word()
+        # for player in self.game_state.playerList:
+        #     if self.player_state._id == player._id:
+        #         self.player_state = player
+        # if self.game_state.currentDrawer == self.player_state._id:
+        #     self.player_state.isDrawer = True
+        #     self.player_state.isGuessing = False
+        # else:
+        #     self.player_state.isDrawer = False
+        #     self.player_state.isGuessing = True
+        self.words = self.choose_word()
         self.game_state.timer = self.game_state.timer if self.game_state.timer > 0 else 10
         self.game_state.maxRound = self.game_state.maxRound if ( self.game_state.maxRound > 0 and
                                                         self.game_state.maxRound < self.game_state.maxPlayer) else 3
         self.game_state.word = self.words
-        self.game_state.word_hint = ("_" + " ") * len(self.game_state.word)
+        self.game_state.word_hint = ("_" + " ") * len(self.words)
         self.game_state.guessed_correctly = set()
         self.round_active = True
 
-        # rotate drawer
+        # rotate drawer each round
         for p in self.game_state.playerList:
             if p._id in self.areadyDraw:
                 p.isGuessing = True
                 p.isDrawer = False
+                if p._id == self.player_state._id:
+                    self.player_state.isGuessing = True
+                    self.player_state.isDrawer = False
             else:
+                p.isGuessing = False
+                p.isDrawer = True
+                if p._id == self.player_state._id:
+                    self.player_state.isGuessing = False
+                    self.player_state.isDrawer = True
                 print('hi', self.game_state.currentDrawer)
                 print(f"{p.username} is drawer")
+                break
         if self.player_state.isHost:
             self.game_state.version += 1
-            self.db.update_to(self.game_state)
+            # self.db.update_to(self.game_state)
+            self.manager.set_action('update')
 
     def update(self):
         # print(self.game_state.timer)
@@ -93,6 +85,10 @@ class RoundManager:
         if self.round_active and now - self.last_tick >= 1000:
             self.game_state.timer -= 1
             self.last_tick = now
+            if self.player_state.isHost:
+                # self.game_state.version += 1
+                # self.db.update_to(self.game_state)
+                self.manager.set_action('update')
 
             if self.game_state.timer <= 0:
                 self.end_round()

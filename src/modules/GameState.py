@@ -23,43 +23,56 @@ class GameState:
         self.guessed_correctly = None
         self.currentDrawer = ''
         self.version = 0
+        self.drawPos = ()
 
     def to_dict(self):
         temp_dict = self.__dict__.copy()
         temp_dict.pop('canva')
         temp_dict.pop('background')
         if 'playerList' in temp_dict:
-            temp_dict['playerList'] = [player.to_dict() for player in self.playerList]
+            temp_dict['playerList'] = [player.to_dict() for player in self.playerList if hasattr(player, 'to_dict')] 
         if isinstance(temp_dict.get('guessed_correctly'), set):
             temp_dict['guessed_correctly'] = list(temp_dict['guessed_correctly'])
 
         return temp_dict
     
-    def sync_gameState_local(self, db):
-        # sync with mongoDB game state
+    def to_obj(self, data):
         try:
-            db.sync_from_db(self)
+            self._id = ''
+            for key, value in data.items():
+                    if hasattr(self, key):
+                        setattr(self, key, value)
+            self.playerList =  [PlayerState(**p) for p in self.playerList] 
+            print("Object Synchronized! => ", str(self))
         except Exception as e:
-            print("Syncing Fail error: ", str(e))
+            print("Failed to synchronized:", str(e))
     
-    def join_game(self, obj, db, id=None):
-        # pull => sync local => append player local => update db
-        try:
-            if id:
-                db.pull_from_db(self, id)
-            else:
-                lists = db.get_all_id()
-                randID = random.choice(lists)
-                db.pull_from_db(self, randID)
-            self.playerList = [PlayerState(**p) for p in self.playerList] 
-            print(type(self.playerList[0]))
-            # print(type(self.playerList[0]))
-            self.playerList.append(obj)
-            db.update(self)
-            return True
-        except Exception as e:
-            print("Joining Fail error:", str(e))
-            return False
+    # def sync_gameState_local(self, db):
+    #     # sync with mongoDB game state
+    #     try:
+    #         db.sync_from_db(self)
+    #         self.playerList = [PlayerState(**p) for p in self.playerList] 
+    #     except Exception as e:
+    #         print("Syncing Fail error: ", str(e))
+    
+    # def join_game(self, obj, db, id=None):
+    #     # pull => sync local => append player local => update db
+    #     try:
+    #         if id:
+    #             db.pull_from_db(self, id)
+    #         else:
+    #             lists = db.get_all_id()
+    #             randID = random.choice(lists)
+    #             db.pull_from_db(self, randID)
+    #         self.playerList = [PlayerState(**p) for p in self.playerList] 
+    #         print(type(self.playerList[0]))
+    #         # print(type(self.playerList[0]))
+    #         self.playerList.append(obj)
+    #         db.update_to(self)
+    #         return True
+    #     except Exception as e:
+    #         print("Joining Fail error:", str(e))
+    #         return False
 
     
     def SET_DEFAULT(self):
@@ -83,6 +96,7 @@ class GameState:
         self.chatLog = [] # chat ui
         self.guessed_correctly = None
         self.currentDrawer = ''
+        self.version = 0
 
 class PlayerState:
     def __init__(self, **kwargs):
@@ -113,16 +127,16 @@ class PlayerState:
         self.setting = ''
         self.message = ''
     
-    def sync_player_local(self, obj):
-        # sync with local game state
-        try:
-            for p in obj.playerList:
-                if p._id == self._id:
-                    p_dict = obj.__dict__
-                    self.__dict__.update({
-                        key: value for key, value in p_dict.items() if key in ['isGuessing', 'isDrawer',
-                                                                                 'isHost']
-                    }) 
-                    break
-        except Exception as e:
-            print("Error syncing player", e)  
+    # def sync_player_local(self, obj):
+    #     # sync with local game state
+    #     try:
+    #         for p in obj.playerList:
+    #             if p._id == self._id:
+    #                 p_dict = obj.__dict__
+    #                 self.__dict__.update({
+    #                     key: value for key, value in p_dict.items() if key in ['isGuessing', 'isDrawer',
+    #                                                                              'isHost']
+    #                 }) 
+    #                 break
+    #     except Exception as e:
+    #         print("Error syncing player", e)  

@@ -1,6 +1,6 @@
 import pygame
 import config
-from Button import Button, BrushButton, TextButton, IconButton, ColorButton
+from Button import BrushButton, TextButton, IconButton, ColorButton
 from TextInput import TextInput
 from Dropdown import Dropdown
 from ChatUI import ChatUI

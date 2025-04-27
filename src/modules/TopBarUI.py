@@ -1,6 +1,5 @@
 import pygame, config
 from Button import IconButton
-from GameSystem import RandomWord
 
 class TopBarUI:
     def __init__(self, x, y, width, height, **kwargs):

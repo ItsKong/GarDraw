@@ -1,7 +1,9 @@
 import config
-import pygame, uuid
+import pygame, uuid, asyncio
+config.add_path()
+from client import connect
 from assets import load_assets
-
+from shared_myobj import manager
 ui = None
 
 class MenuUI:
@@ -47,7 +49,7 @@ def menu_update(screen, game_state, dt):
     ui.name_input.update(dt)
     ui.room_id_input.update(dt)
 
-def SET_player (username, player_state):
+def SET_player_data (username, player_state):
     if username == '':
         player_state.username = 'anonymous'
         player_state._id = str(uuid.uuid4())
@@ -67,21 +69,28 @@ def menu_event(event, game_state, player_state, db):
         # gameState => host 
         # get random _id gameState then pull by _id
         # append local player => game_state.update_to()
-        SET_player(username, player_state)
+        SET_player_data(username, player_state)
         rmid = ui.room_id_input.value if ui.room_id_input.value != '' else None
-        joined = game_state.join_game(player_state, db, rmid)
-        if joined:
-            print(game_state.playerList)
-            game_state.state = config.DRAWING
-        else:
-            return
+        manager.set_action('join_room', custom=rmid)
+        # joined = game_state.join_game(player_state, db, rmid)
+        # if joined:
+        #     print(game_state.playerList)
+        #     game_state.state = config.DRAWING
+        # else:
+        #     return
 
     if ui.create_room_button.is_clicked(event):
-        SET_player(username, player_state)
+        SET_player_data(username, player_state)
+        # manager.SET_PLAYER(player_state)
+        player_state.isHost = True
         game_state.playerList.append(player_state)
         game_state.currentDrawer = player_state._id # shoulde be _id
         game_state.currentHost = player_state._id
         game_state.rmSetting = True
         game_state.state = config.DRAWING
-        db.insert_to(game_state)  
+        # print(id(player_state))
+        # print(id(manager.player_state))
+        manager.set_action('create_room')
+        # db.insert_to(game_state)  
+        # asyncio.create_task(connect(player_state, 'localhost'))
         
